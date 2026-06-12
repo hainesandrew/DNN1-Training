@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fan Wall Training v2.1</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans,'Segoe UI',sans-serif);font-size:15px;line-height:1.6;color:var(--color-text-primary,#1a1a1a);background:transparent;padding:0 0 2rem}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+.hero{padding:1.5rem 1.5rem 1rem;border-bottom:0.5px solid var(--color-border-tertiary,#e0ddd6)}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;background:var(--color-background-info,#e6f1fb);color:var(--color-text-info,#185fa5);margin-bottom:.6rem;letter-spacing:.04em;text-transform:uppercase}
+.hero h1{font-size:22px;font-weight:500;margin-bottom:.2rem}
+.hero p{font-size:14px;color:var(--color-text-secondary,#5f5e5a)}
+.tabs{display:flex;gap:4px;padding:.75rem 1.5rem .5rem;border-bottom:0.5px solid var(--color-border-tertiary,#e0ddd6);overflow-x:auto}
+.tab{font-size:13px;font-weight:500;padding:5px 14px;border-radius:20px;border:0.5px solid transparent;cursor:pointer;white-space:nowrap;color:var(--color-text-secondary,#888);background:transparent;transition:all .15s}
+.tab:hover{background:var(--color-background-secondary,#f5f4ef)}
+.tab.active{background:var(--color-background-primary,#fff);border-color:var(--color-border-secondary,#c5c3bb);color:var(--color-text-primary,#1a1a1a)}
+.panel{display:none}.panel.active{display:block}
+.section{padding:1.25rem 1.5rem}
+.section-title{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-secondary,#888);margin-bottom:.75rem}
+.divider{height:0.5px;background:var(--color-border-tertiary,#e0ddd6);margin:0 1.5rem}
+.stat{background:var(--color-background-secondary,#f5f4ef);border-radius:8px;padding:12px 14px}
+.stat-num{font-size:24px;font-weight:500;line-height:1}
+.stat-label{font-size:12px;color:var(--color-text-secondary,#888);margin-top:4px}
+.diagram-wrap{position:relative;width:100%;background:var(--color-background-secondary,#f5f4ef);border-radius:12px;overflow:hidden;border:0.5px solid var(--color-border-tertiary,#e0ddd6)}
+.diagram-wrap svg{display:block;width:100%}
+.hotspot{cursor:pointer}
+.callout{position:absolute;top:0;left:0;width:260px;background:var(--color-background-primary,#fff);border:0.5px solid var(--color-border-secondary,#c5c3bb);border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.5;pointer-events:none;opacity:0;transition:opacity .2s;box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.callout.visible{opacity:1;pointer-events:auto}
+.callout .c-title{font-size:13px;font-weight:500;margin-bottom:4px}
+.callout .c-body{font-size:12px;color:var(--color-text-secondary,#5f5e5a)}
+.callout .c-close{position:absolute;top:8px;right:10px;font-size:16px;cursor:pointer;color:var(--color-text-tertiary,#aaa);line-height:1;background:none;border:none;padding:0}
+.comp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.comp-card{border-radius:10px;border:0.5px solid var(--color-border-tertiary,#e0ddd6);overflow:hidden;cursor:pointer;transition:border-color .15s}
+.comp-card:hover{border-color:var(--color-border-secondary,#c5c3bb)}
+.comp-card.active{border-color:var(--color-border-info,#185fa5);border-width:1px}
+.comp-head{padding:10px 14px 8px;display:flex;align-items:center;gap:10px}
+.comp-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.comp-label{font-size:13px;font-weight:500}
+.comp-sub{font-size:11px;color:var(--color-text-secondary,#888);margin-top:1px}
+.comp-body{padding:8px 14px 12px;font-size:12px;color:var(--color-text-secondary,#5f5e5a);line-height:1.6;border-top:0.5px solid var(--color-border-tertiary,#e0ddd6)}
+.comp-body strong{color:var(--color-text-primary,#1a1a1a);font-weight:500}
+.step-nav{display:flex;align-items:center;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(--color-border-secondary,#c5c3bb);transition:background .2s;flex-shrink:0}
+.step-dot.active{background:var(--color-text-info,#185fa5);transform:scale(1.3)}
+.step-card{border:0.5px solid var(--color-border-tertiary,#e0ddd6);border-radius:10px;overflow:hidden}
+.step-header{padding:12px 16px;display:flex;align-items:center;gap:12px}
+.step-num{width:28px;height:28px;border-radius:50%;font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-title{font-size:14px;font-weight:500}
+.step-body{padding:0 16px 14px;font-size:13px;color:var(--color-text-secondary,#5f5e5a);line-height:1.6}
+.step-body strong{color:var(--color-text-primary,#1a1a1a);font-weight:500}
+.step-controls{display:flex;gap:8px;margin-top:1rem}
+.btn{font-size:13px;font-weight:500;padding:7px 16px;border-radius:20px;border:0.5px solid var(--color-border-secondary,#c5c3bb);cursor:pointer;background:var(--color-background-primary,#fff);color:var(--color-text-primary,#1a1a1a);transition:all .15s}
+.btn:hover{background:var(--color-background-secondary,#f5f4ef)}
+.btn.primary{background:var(--color-text-info,#185fa5);color:#fff;border-color:transparent}
+.btn.primary:hover{opacity:.9}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.eng-section{margin-bottom:1.5rem}
+.eng-section h3{font-size:14px;font-weight:600;color:var(--color-text-primary,#1a1a1a);margin-bottom:.6rem;padding-bottom:.4rem;border-bottom:0.5px solid var(--color-border-tertiary,#e0ddd6)}
+.eng-section p,.eng-section li{font-size:13px;color:var(--color-text-secondary,#5f5e5a);line-height:1.7;margin-bottom:.4rem}
+.eng-section ul{padding-left:1.2rem;margin-bottom:.4rem}
+.eng-block{background:var(--color-background-secondary,#f5f4ef);border-radius:10px;padding:13px 15px;margin-bottom:10px;border:0.5px solid var(--color-border-tertiary,#e0ddd6)}
+.eng-block-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--color-text-secondary,#888);margin-bottom:7px}
+.eng-block p,.eng-block li{font-size:13px;color:var(--color-text-secondary,#5f5e5a);line-height:1.7;margin-bottom:.3rem}
+.eng-block ul{padding-left:1.2rem}
+.eng-block strong{color:var(--color-text-primary,#1a1a1a);font-weight:500}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:500px){.two-col{grid-template-columns:1fr}}
+.flow-diagram{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:10px 0}
+.flow-node{background:var(--color-background-primary,#fff);border:0.5px solid var(--color-border-secondary,#c5c3bb);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:500;text-align:center;min-width:80px}
+.flow-arrow{font-size:16px;color:var(--color-text-secondary,#888)}
+.flow-node.blue{background:#e6f1fb;border-color:#b5d4f4;color:#0c447c}
+.flow-node.purple{background:#eeedfe;border-color:#afa9ec;color:#3c3489}
+.flow-node.amber{background:#faeeda;border-color:#efaf2e;color:#633806}
+.flow-node.green{background:#eaf3de;border-color:#c0dd97;color:#27500a}
+.mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+@media(max-width:500px){.mode-cards{grid-template-columns:1fr}}
+.mode-card{border-radius:10px;padding:12px 14px;border:0.5px solid;font-size:12px;line-height:1.6}
+.mode-card strong{display:block;font-size:13px;margin-bottom:4px}
+.mode-card.local{background:#e1f5ee;border-color:#0f6e56}.mode-card.local strong{color:#0f6e56}
+.mode-card.remote{background:#e6f1fb;border-color:#185fa5}.mode-card.remote strong{color:#185fa5}
+.rounds-list{display:flex;flex-direction:column;gap:8px}
+.rounds-item{display:flex;gap:12px;padding:12px 14px;border-radius:10px;background:var(--color-background-secondary,#f5f4ef);border:0.5px solid var(--color-border-tertiary,#e0ddd6);align-items:flex-start}
+.rounds-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.rounds-title{font-size:13px;font-weight:600;color:var(--color-text-primary,#1a1a1a);margin-bottom:2px}
+.rounds-desc{font-size:12px;color:var(--color-text-secondary,#5f5e5a);line-height:1.6}
+.alarm-grid{display:flex;flex-direction:column;gap:8px}
+.alarm-row{display:grid;grid-template-columns:150px 1fr auto;gap:10px;align-items:start;padding:10px 12px;border-radius:8px;background:var(--color-background-secondary,#f5f4ef);border:0.5px solid var(--color-border-tertiary,#e0ddd6);font-size:12px}
+.alarm-name{font-weight:600;color:var(--color-text-primary,#1a1a1a);font-size:12px}
+.alarm-desc{color:var(--color-text-secondary,#5f5e5a);line-height:1.5}
+.alarm-delay{font-size:11px;padding:2px 7px;border-radius:8px;font-weight:500;white-space:nowrap;align-self:flex-start;margin-top:1px}
+.delay-short{background:#faeeda;color:#633806}
+.delay-long{background:#e6f1fb;color:#0c447c}
+.delay-instant{background:#faece7;color:#712b13}
+@media(max-width:500px){.alarm-row{grid-template-columns:1fr;gap:4px}}
+.ref-table{width:100%;border-collapse:collapse;font-size:13px}
+.ref-table th{font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--color-text-secondary,#888);padding:6px 10px;border-bottom:0.5px solid var(--color-border-tertiary,#e0ddd6);text-align:left}
+.ref-table td{padding:9px 10px;border-bottom:0.5px solid var(--color-border-tertiary,#e0ddd6);vertical-align:top}
+.ref-table tr:last-child td{border-bottom:none}
+.ref-table tr:hover td{background:var(--color-background-secondary,#f5f4ef)}
+.pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500}
+.pill-blue{background:#e6f1fb;color:#0c447c}
+.pill-teal{background:#e1f5ee;color:#085041}
+.pill-amber{background:#faeeda;color:#633806}
+.pill-gray{background:#f1efe8;color:#444441}
+.tip-box{padding:12px 14px;border-left:3px solid #1D9E75;background:var(--color-background-secondary,#f5f4ef);font-size:13px;color:var(--color-text-secondary,#5f5e5a)}
+.tip-box strong{color:var(--color-text-primary,#1a1a1a);font-weight:500}
+.warn-box{padding:12px 14px;border-radius:10px;border-left:3px solid #e08c00;background:#faeeda;font-size:13px;color:#633806;margin-bottom:10px}
+.warn-box strong{color:#3d2400;font-weight:600}
+.info-box{padding:12px 14px;border-radius:10px;border:0.5px solid var(--color-border-tertiary,#e0ddd6);background:var(--color-background-secondary,#f5f4ef);font-size:13px;color:var(--color-text-secondary,#5f5e5a);margin-bottom:10px}
+.info-box strong{color:var(--color-text-primary,#1a1a1a);font-weight:500}
+.quiz-q{font-size:14px;font-weight:500;margin-bottom:.75rem}
+.quiz-opts{display:flex;flex-direction:column;gap:8px}
+.quiz-opt{padding:10px 14px;border-radius:8px;border:0.5px solid var(--color-border-tertiary,#e0ddd6);cursor:pointer;font-size:13px;transition:all .15s;background:var(--color-background-primary,#fff)}
+.quiz-opt:hover:not(.locked){border-color:var(--color-border-secondary,#c5c3bb);background:var(--color-background-secondary,#f5f4ef)}
+.quiz-opt.correct{border-color:#0f6e56;background:#e1f5ee;color:#085041}
+.quiz-opt.wrong{border-color:#993c1d;background:#faece7;color:#712b13}
+.quiz-opt.locked{cursor:default}
+.quiz-fb{margin-top:.75rem;font-size:13px;padding:10px 14px;border-radius:8px}
+.quiz-fb.correct{background:#e1f5ee;color:#085041}
+.quiz-fb.wrong{background:#faece7;color:#712b13}
+.quiz-progress{display:flex;gap:6px;margin-bottom:1.25rem}
+.quiz-prog-dot{width:8px;height:8px;border-radius:50%;background:var(--color-border-secondary,#c5c3bb)}
+.quiz-prog-dot.done-right{background:#0f6e56}
+.quiz-prog-dot.done-wrong{background:#993c1d}
+.quiz-prog-dot.current{background:#185fa5;transform:scale(1.3)}
+.quiz-score{font-size:22px;font-weight:500;margin:.5rem 0}
+.quiz-score-sub{font-size:13px;color:var(--color-text-secondary,#888)}
+</style>
+</head>
+<body>
+
+<h2 class="sr-only">Fan wall unit training — facility operators and technicians</h2>
+
+<div class="hero">
+  <div class="badge">Sub-training · Mechanical Gallery</div>
+  <h1>Fan wall units</h1>
+  <p>York MCH CRAH · 21 units on site · Version 4 software · Click hotspots or tabs to explore</p>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px;padding:1rem 1.5rem;border-bottom:0.5px solid var(--color-border-tertiary,#e0ddd6)">
+  <div class="stat"><div class="stat-num" style="color:#185fa5">21</div><div class="stat-label">Fan wall units</div></div>
+  <div class="stat"><div class="stat-num" style="color:#0f6e56">76K</div><div class="stat-label">CFM per unit</div></div>
+  <div class="stat"><div class="stat-num" style="color:#854f0b">9</div><div class="stat-label">Fans per unit</div></div>
+  <div class="stat"><div class="stat-num" style="color:#534ab7">415V</div><div class="stat-label">3-phase / 60 Hz</div></div>
+  <div class="stat"><div class="stat-num" style="color:#5f5e5a">18 RH / 3 LH</div><div class="stat-label">Handedness split</div></div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('diagram',this)">Unit anatomy</button>
+  <button class="tab" onclick="switchTab('flow',this)">Airflow path</button>
+  <button class="tab" onclick="switchTab('components',this)">Components</button>
+  <button class="tab" onclick="switchTab('engineering',this)">Engineering & controls</button>
+  <button class="tab" onclick="switchTab('specs',this)">Specs & alarms</button>
+  <button class="tab" onclick="switchTab('quiz',this)">Knowledge check</button>
+</div>
+
+<!-- ===== DIAGRAM TAB ===== -->
+<div id="tab-diagram" class="panel active">
+  <div class="section">
+    <div class="section-title">Unit anatomy — tap hotspots to identify each section</div>
+    <div class="diagram-wrap" id="dwrap">
+      <svg viewBox="0 0 780 480" role="img" width="100%">
+        <title>York MCH fan wall unit cross-section — right-hand unit viewed from mechanical gallery</title>
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+          <marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#534ab7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+
+        <!-- SPACE LABELS -->
+        <rect x="2" y="80" width="66" height="290" rx="6" fill="#fff3e8" stroke="#e8c48a" stroke-width="0.8"/>
+        <text style="font-family:var(--font-sans,'Segoe UI',sans-serif);font-size:9px;font-weight:700;fill:#7a4100" x="35" y="182" text-anchor="middle">MECHANICAL</text>
+        <text style="font-family:var(--font-sans,'Segoe UI',sans-serif);font-size:9px;font-weight:700;fill:#7a4100" x="35" y="194" text-anchor="middle">GALLERY</text>
+        <text style="font-family:var(--font-sans,'Segoe UI',sans-serif);font-size:8px;fill:#b06000" x="35" y="210" text-anchor="middle">suction side</text>
+        <line x1="35" y1="242" x2="68" y2="242" stroke="#c0392b" stroke-width="1.8" marker-end="url(#arr)"/>
+        <text style="font-family:var(--font-sans,'Segoe UI',sans-serif);font-size:8px;fill:#c0392b" x="35" y="232" text-anchor="middle">warm air</text>
+        <text style="font-family:var(--font-sans,'Segoe UI',sans-serif);font-size:8px;fill:#c0392b" x="35" y="258" text-anchor="middle">~75–90°F</text>
+
+        <rect x="600" y="80" width="66" height="290" rx="6" fill="#e8f8f0" stroke="#7dcca8" stroke-width="0.8"/>
+        <text style="font-family:var(--font-sans,'Segoe UI',sans-serif);font-size:9px;font-weight:700;fill:#085041" x="633" y="182" text-anchor="middle">DATA</text>
+        <text style="font-family:var(--font-sans,'Segoe UI',sans-serif);font-size:9px;font-weight:700;fill:#085041" x="633" y="194" text-anchor="middle">HALL</text>
+        <text style="font-family:var(--font-sans,'Segoe UI',sans-serif);font-size:8px;fill:#0f6e56" x="633" y="210" text-anchor="middle">discharge side</text>
+        <line x1="566" y1="242" x2="599" y2="242" stroke="#0f6e56" stroke-width="1.8" marker-end="url(#arr)"/>
+        <text style="font-family:var(--font-sans,'Segoe UI',sans-serif);font-size:8px;fill:#0f6e56" x="633" y="232" text-anchor="middle">cool air</text>
+        <text style="font-family:var(--font-sans,'Segoe UI',sans-serif);font-size:8px;fill:#0f6e56" x="633" y="258" text-anchor="middle">~67°F</text>
+
+        <!-- UNIT SHELL -->
+        <rect x="70" y="70" width="496" height="345" rx="10" fill="none" stroke="#5f5e5a" stroke-width="1.5" stroke-dasharray="6 3"/>
+        <text style="font-family:var(--font-sans,'Segoe UI',sans-serif);font-size:11px;fill:#888" x="82" y="62">York MCH CRAH — 76,000 CFM · 415V / 3φ / 60 Hz (right-hand unit shown)</text>
+
+        <!-- SECTION 1: FILTER (background only, no filter panel shapes) -->
+        <rect x="72" y="72" width="108" height="341" rx="8" fill="#e6f1fb" stroke="#b5d4f4" stroke-width="0.8"/>
+        <text style="font-family:var(--font-sans,'Segoe UI',sans-serif);font-size:12px;font-weight:600;fill:#0c447c" x="126" y="192" text-anchor="middle">Filter</text>
+        <text style="font-family:var(--font-sans,'Segoe UI',sans-serif);font-size:12px;font-weight:600;fill:#0c447c" x="126" y="208" text-anchor="middle">section</text>
+        <text style="font-family:var(--font-sans,'Segoe UI',sans-serif);font-size:10px;fill:#185fa5" x="126" y="234" text-anchor="middle">4″ MERV 8</text>
+        <text style="font-family:var(--font-sans,'Segoe UI',sans-serif);font-size:10px;fill:#185fa5" x="126" y="248" text-anchor="middle">16 filters</text>
+
+        <!-- SECTION 2: FAN ARRAY -->
+        <rect x="182" y="72" width="170" height="341" rx="8" fill="#eaf3de" stroke="#c0dd97" stroke-width="0.8"/>
+        <text style="font-family:var(--font-sans,'Segoe UI',sans-serif);font-size:12px;font-weight:600;fill:#27500a" x="267" y="93" text-anchor="middle">Fan array section</text>
+        <g>
+          <circle cx="222" cy="136" r="26" fill="#9fd46a" fill-opacity=".35" stroke="#639922" stroke-width="1"/>
+          <circle cx="222" cy="136" r="13" fill="none" stroke="#639922" stroke-width="1" stroke-dasharray="4 2"/>
+          <circle cx="267" cy="136" r="26" fill="#9fd46a" fill-opacity=".35" stroke="#639922" stroke-width="1"/>
+          <circle cx="267" cy="136" r="13" fill="none" stroke="#639922" stroke-width="1" stroke-dasharray="4 2"/>
+          <circle cx="312" cy="136" r="26" fill="#9fd46a" fill-opacity=".35" stroke="#639922" stroke-width="1"/>
+          <circle cx="312" cy="136" r="13" fill="none" stroke="#639922" stroke-width="1" stroke-dasharray="4 2"/>
+          <circle cx="222" cy="235" r="26" fill="#9fd46a" fill-opacity=".35" stroke="#639922" stroke-width="1"/>
+          <circle cx="222" cy="235" r="13" fill="none" stroke="#639922" stroke-width="1" stroke-dasharray="4 2"/>
+          <circle cx="267" cy="235" r="26" fill="#9fd46a" fill-opacity=".35" stroke="#639922" stroke-width="1"/>
+          <circle cx="267" cy="235" r="13" fill="none" stroke="#639922" stroke-width="1" stroke-dasharray="4 2"/>
+          <circle cx="312" cy="235" r="26" fill="#9fd46a" fill-opacity=".35" stroke="#639922" stroke-width="1"/>
+          <circle cx="312" cy="235" r="13" fill="none" stroke="#639922" stroke-width="1" stroke-dasharray="4 2"/>
+          <circle cx="222" cy="334" r="26" fill="#9fd46a" fill-opacity=".35" stroke="#639922" stroke-width="1"/>
+          <circle cx="222" cy="334" r="13" fill="none" stroke="#639922" stroke-width="1" stroke-dasharray="4 2"/>
+          <circle cx="267" cy="334" r="26" fill="#9fd46a" fill-opacity=".35" stroke="#639922" stroke-width="1"/>
+          <circle cx="267" cy="334" r="13" fill="none" stroke="#639922" stroke-width="1" stroke-dasharray="4 2"/>
+          <circle cx="312" cy="334" r="26" fill="#9fd46a" fill-opacity=".35" stroke="#639922" stroke-width="1"/>
+          <circle cx="312" cy="334" r="13" fill="none" stroke="#639922" stroke-width="1" stroke-dasharray="4 2"/>
+        </g>
+        <text style="font-family:var(--font-sans,'Segoe UI',sans-serif);font-size:10px;fill:#3b6d11" x="267" y="426" text-anchor="middle">9× EBM-Pabst M3G150 · 415V · 4.4 kW ea.</text>
+
+        <!-- SECTION 3: COOLING COIL -->
+        <rect x="354" y="72" width="210" height="341" rx="8" fill="#eeedfe" stroke="#afa9ec" stroke-width="0.8"/>
+        <text style="font-family:var(--font-sans,'Segoe UI',sans-serif);font-size:12px;font-weight:600;fill:#3c3489" x="459" y="93" text-anchor="middle">Cooling coil &amp; electrical panel</text>
+        <g stroke="#7f77dd" stroke-width="0.8" opacity=".5">
+          <line x1="366" y1="100" x2="552" y2="100"/><line x1="366" y1="112" x2="552" y2="112"/>
+          <line x1="366" y1="124" x2="552" y2="124"/><line x1="366" y1="136" x2="552" y2="136"/>
+          <line x1="366" y1="148" x2="552" y2="148"/><line x1="366" y1="160" x2="552" y2="160"/>
+          <line x1="366" y1="172" x2="552" y2="172"/><line x1="366" y1="184" x2="552" y2="184"/>
+          <line x1="366" y1="196" x2="552" y2="196"/><line x1="366" y1="208" x2="552" y2="208"/>
+          <line x1="366" y1="220" x2="552" y2="220"/><line x1="366" y1="232" x2="552" y2="232"/>
+          <line x1="366" y1="244" x2="552" y2="244"/><line x1="366" y1="256" x2="552" y2="256"/>
+          <line x1="366" y1="268" x2="552" y2="268"/><line x1="366" y1="280" x2="552" y2="280"/>
+          <line x1="366" y1="292" x2="552" y2="292"/><line x1="366" y1="304" x2="552" y2="304"/>
+          <line x1="366" y1="316" x2="552" y2="316"/><line x1="366" y1="328" x2="552" y2="328"/>
+          <line x1="366" y1="340" x2="552" y2="340"/><line x1="366" y1="352" x2="552" y2="352"/>
+          <line x1="366" y1="364" x2="552" y2="364"/><line x1="366" y1="376" x2="552" y2="376"/>
+        </g>
+        <rect x="400" y="72" width="14" height="26" rx="3" fill="#534ab7" fill-opacity=".65"/>
+        <rect x="470" y="72" width="14" height="26" rx="3" fill="#534ab7" fill-opacity=".4"/>
+        <text style="font-family:var(--font-sans,'Segoe UI',sans-serif);font-size:9px;fill:#534ab7" x="407" y="112" text-anchor="middle">CHW</text>
+        <text style="font-family:var(--font-sans,'Segoe UI',sans-serif);font-size:9px;fill:#534ab7" x="407" y="122" text-anchor="middle">supply</text>
+        <text style="font-family:var(--font-sans,'Segoe UI',sans-serif);font-size:9px;fill:#534ab7" x="477" y="112" text-anchor="middle">CHW</text>
+        <text style="font-family:var(--font-sans,'Segoe UI',sans-serif);font-size:9px;fill:#534ab7" x="477" y="122" text-anchor="middle">return</text>
+        <text style="font-family:var(--font-sans,'Segoe UI',sans-serif);font-size:9px;fill:#534ab7" x="459" y="210" text-anchor="middle">27% glycol /</text>
+        <text style="font-family:var(--font-sans,'Segoe UI',sans-serif);font-size:9px;fill:#534ab7" x="459" y="222" text-anchor="middle">73% water</text>
+        <rect x="356" y="380" width="206" height="22" rx="4" fill="#eeedfe" stroke="#7f77dd" stroke-width="0.8"/>
+        <text style="font-family:var(--font-sans,'Segoe UI',sans-serif);font-size:9px;fill:#534ab7" x="459" y="395" text-anchor="middle">Stainless drain pan · EPIV valve · electrical panel (RH side)</text>
+
+        <!-- HOTSPOTS -->
+        <g class="hotspot" onclick="showCallout('hs-filter',event)">
+          <circle cx="126" cy="235" r="13" fill="#185fa5" fill-opacity=".15" stroke="#185fa5" stroke-width="1"/>
+          <circle cx="126" cy="235" r="5" fill="#185fa5"/>
+          <text style="font-family:var(--font-sans,'Segoe UI',sans-serif);font-size:11px;font-weight:600;fill:#fff" x="126" y="239" text-anchor="middle">1</text>
+        </g>
+        <g class="hotspot" onclick="showCallout('hs-fans',event)">
+          <circle cx="267" cy="235" r="13" fill="#3b6d11" fill-opacity=".15" stroke="#3b6d11" stroke-width="1"/>
+          <circle cx="267" cy="235" r="5" fill="#3b6d11"/>
+          <text style="font-family:var(--font-sans,'Segoe UI',sans-serif);font-size:11px;font-weight:600;fill:#fff" x="267" y="239" text-anchor="middle">2</text>
+        </g>
+        <g class="hotspot" onclick="showCallout('hs-coil',event)">
+          <circle cx="459" cy="235" r="13" fill="#534ab7" fill-opacity=".15" stroke="#534ab7" stroke-width="1"/>
+          <circle cx="459" cy="235" r="5" fill="#534ab7"/>
+          <text style="font-family:var(--font-sans,'Segoe UI',sans-serif);font-size:11px;font-weight:600;fill:#fff" x="459" y="239" text-anchor="middle">3</text>
+        </g>
+      </svg>
+
+      <!-- CALLOUTS -->
+      <div class="callout" id="hs-filter">
+        <button class="c-close" onclick="closeCallout('hs-filter')">×</button>
+        <div class="c-title">① Filter section</div>
+        <div class="c-body"><strong>16× 4″ MERV 8 filters</strong> in a 4-wide × 4-tall grid. This is the face of the unit that you see in the mechanical gallery — filters are front-loaded and can be pulled and replaced while the unit is running, without any isolation required. Warm air drawn from the gallery contacts the filters first, before reaching the coil or fans. A differential pressure transducer monitors filter loading and alarms at <strong>0.81 inH₂O</strong>.</div>
+      </div>
+      <div class="callout" id="hs-fans">
+        <button class="c-close" onclick="closeCallout('hs-fans')">×</button>
+        <div class="c-title">② Fan array section</div>
+        <div class="c-body"><strong>9× EBM-Pabst M3G150 ECM fans</strong> in a 3×3 grid, behind the filter bank. 415V, 3-phase, 4,400 W each at max load, 1,700 RPM. All nine run at the same speed, modulated 30–100% by the BACnet controller. A single fan failure does not shut the unit. Each fan reports its own run status — individual fan faults appear on the HMI Fans screen.</div>
+      </div>
+      <div class="callout" id="hs-coil">
+        <button class="c-close" onclick="closeCallout('hs-coil')">×</button>
+        <div class="c-title">③ Cooling coil section</div>
+        <div class="c-body">Chilled water (27% glycol / 73% water) enters and exits via <strong>top manifold connections</strong>. A <strong>Belimo EPIV valve</strong> modulates flow to maintain the discharge air temperature setpoint (default 55°F). The stainless drain pan runs the full width at the base. The rope leak detector sits in the drain pan on the mechanical gallery floor. The EPIV is accessible from the mechanical gallery side.</div>
+      </div>
+      <div class="callout" id="hs-elec">
+        <button class="c-close" onclick="closeCallout('hs-elec')">×</button>
+        <div class="c-title">④ Electrical &amp; controls panel</div>
+        <div class="c-body">On a right-hand unit, the electrical panel is on the <strong>right side</strong> of the unit when facing it from the mechanical gallery. The <strong>7″ Loytec HMI touchscreen</strong> is mounted on the panel door, visible and operable from the gallery. The BACnet controller, UPS (controller only — not fans), and single-point power connection are all housed here. Field software changes void the factory warranty.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FLOW TAB ===== -->
+<div id="tab-flow" class="panel">
+  <div class="section">
+    <div class="section-title">Airflow path — step through the sequence</div>
+    <div class="step-wrap">
+      <div class="step-nav" id="step-nav"></div>
+      <div class="step-card" id="step-card"></div>
+      <div class="step-controls">
+        <button class="btn" id="btn-prev" onclick="stepNav(-1)" disabled>← Back</button>
+        <button class="btn primary" id="btn-next" onclick="stepNav(1)">Next →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== COMPONENTS TAB ===== -->
+<div id="tab-components" class="panel">
+  <div class="section">
+    <div class="section-title">Key components — tap any card for detail</div>
+    <div class="comp-grid">
+      <div class="comp-card" onclick="toggleComp(this,'cd-filter')">
+        <div class="comp-head">
+          <div class="comp-icon" style="background:#e6f1fb;color:#185fa5">▦</div>
+          <div><div class="comp-label">MERV 8 filters</div><div class="comp-sub">4″ pleated · 16 per unit · front-load</div></div>
+        </div>
+        <div class="comp-body" id="cd-filter" style="display:none">
+          Arranged in a <strong>4-wide × 4-tall grid</strong> on the mechanical gallery face of the unit. Because they are front-loaded and face into the gallery, filters can be pulled and replaced while the unit is fully operational — no isolation required. This is a deliberate design feature: the filter bank is the first thing the return air contacts, keeping the coil fins clean. A Setra differential pressure transducer monitors resistance across the filter bank. The alarm threshold is <strong>0.81 inH₂O sustained for 5 minutes</strong>. The alarm self-resets when DP drops below setpoint. On rounds, inspect filters visually for physical damage, heavy loading, or collapse.
+        </div>
+      </div>
+      <div class="comp-card" onclick="toggleComp(this,'cd-fan')">
+        <div class="comp-head">
+          <div class="comp-icon" style="background:#eaf3de;color:#3b6d11">◎</div>
+          <div><div class="comp-label">ECM fan motors</div><div class="comp-sub">EBM-Pabst M3G150 · 9 per unit</div></div>
+        </div>
+        <div class="comp-body" id="cd-fan" style="display:none">
+          Nine fans in a <strong>3×3 array</strong> behind the filter bank. Each is an <strong>Electronically-Commutated Motor (ECM)</strong> — a brushless variable-speed motor that maintains good efficiency across its speed range. 415V, 3-phase, 560 mm diameter, 5-blade aluminum impeller, 4,400 W and 1,700 RPM at max load, IP55 rated. All nine are commanded to the same speed by the BACnet controller. Each fan independently reports a dry-contact run status signal back to the controller — individual fan faults appear as SF1–SF9 mismatch alarms on the HMI. A single fan failure does not shut the unit down. On rounds, listen for abnormal noise or vibration from the fan section, which can indicate a bearing issue or mechanical fault.
+        </div>
+      </div>
+      <div class="comp-card" onclick="toggleComp(this,'cd-coil')">
+        <div class="comp-head">
+          <div class="comp-icon" style="background:#eeedfe;color:#534ab7">≋</div>
+          <div><div class="comp-label">Chilled water coil</div><div class="comp-sub">Top-connect · 27/73 glycol mix</div></div>
+        </div>
+        <div class="comp-body" id="cd-coil" style="display:none">
+          The coil sits behind the fan array and spans the full cross-section of the unit. Chilled water supply and return connections are both at the <strong>top of the unit</strong>. The fluid is a <strong>27% glycol / 73% water mixture</strong> circulated by the building's Chilled Water Pumps (CHWPs) from the 24 rooftop air-cooled chillers. Glycol is present to protect the system against freezing in cold conditions. Maximum system pressure is <strong>130 psi</strong>; maximum fluid temperature <strong>95°F</strong>. Do not use chemical cleaners on the coil — clean fresh water only. After any flushing, vent trapped air and check all strainers.
+        </div>
+      </div>
+      <div class="comp-card" onclick="toggleComp(this,'cd-epiv')">
+        <div class="comp-head">
+          <div class="comp-icon" style="background:#eeedfe;color:#534ab7">⊛</div>
+          <div><div class="comp-label">EPIV control valve</div><div class="comp-sub">Belimo · 2-way · pressure-independent</div></div>
+        </div>
+        <div class="comp-body" id="cd-epiv" style="display:none">
+          The <strong>Electronically-Pressure-Independent Valve (EPIV)</strong> controls how much chilled water flows through the coil. Unlike a standard valve, the EPIV contains an ultrasonic flow meter and delivers the precise commanded flow rate regardless of pressure fluctuations elsewhere in the building's chilled water system. This matters because all 21 fan walls and other building loads share the same distribution loop — pressure can vary significantly. The valve is located inside the unit on the coil section and is <strong>accessible from the mechanical gallery</strong>. It is modulated by the BACnet controller based on discharge air temperature. The BAS must never command this valve directly — it is always under local controller PID control.
+        </div>
+      </div>
+      <div class="comp-card" onclick="toggleComp(this,'cd-ctrl')">
+        <div class="comp-head">
+          <div class="comp-icon" style="background:#f1efe8;color:#5f5e5a">⊞</div>
+          <div><div class="comp-label">BACnet controller &amp; HMI</div><div class="comp-sub">Loytec LVIS-3ME7 · Version 4</div></div>
+        </div>
+        <div class="comp-body" id="cd-ctrl" style="display:none">
+          The <strong>Building Management System (BMS)</strong> — the facility-wide control platform — communicates with each fan wall unit via <strong>BACnet/IP</strong>, an open building controls protocol. The unit controller (Loytec LVIS-3ME7, running Metasys Version 4 software) manages fan speed, valve modulation, and all alarms. The <strong>7″ HMI touchscreen</strong> is mounted on the electrical panel door, facing the mechanical gallery, and is the local interface for operators and technicians. All users can view any HMI screen without logging in. Responding to alarms and monitoring unit status does not require a login. Adjusting setpoints requires the service PIN (9675) and is a task for authorized personnel. <strong>Field software changes void the factory warranty.</strong>
+        </div>
+      </div>
+      <div class="comp-card" onclick="toggleComp(this,'cd-drain')">
+        <div class="comp-head">
+          <div class="comp-icon" style="background:#eeedfe;color:#534ab7">⬕</div>
+          <div><div class="comp-label">Drain pan &amp; leak detector</div><div class="comp-sub">Stainless · full coil width · rope sensor</div></div>
+        </div>
+        <div class="comp-body" id="cd-drain" style="display:none">
+          A stainless steel drain pan runs the full width under the cooling coil, capturing any condensate produced when the cold coil meets warm humid return air. Below the unit on the mechanical gallery floor sits a <strong>bathtub-style secondary drain pan</strong> — this is also where the rope-style leak detector cable is located. During rounds, <strong>check the drain pan for standing water</strong>. A small amount of condensate draining normally is expected; pooled standing water is not and should be investigated and escalated. The rope leak detector connected to the controller will trigger a floor leak alarm if moisture is detected — respond to this immediately.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ENGINEERING & CONTROLS TAB ===== -->
+<div id="tab-engineering" class="panel">
+  <div class="section">
+    <div class="section-title">Engineering &amp; controls — how the system works</div>
+    <div class="eng-section">
+      <h3>The building cooling chain</h3>
+      <p>The fan wall units are the final link in the building's chilled water cooling system. Understanding the chain from roof to rack puts their operation in context.</p>
+      <div class="flow-diagram">
+        <div class="flow-node amber">24 rooftop ACCs</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node blue">CHWPs circulate fluid</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node purple">FWU coil (EPIV)</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node green">Cold air → data hall</div>
+      </div>
+      <div class="eng-block">
+        <div class="eng-block-title">Rooftop air-cooled chillers (ACCs)</div>
+        <p>The 24 rooftop units produce the chilled water that ultimately cools the data hall. They can operate in three modes depending on outside air temperature: <strong>free cooling</strong> (integral fans reject building heat directly to cold outdoor air, no refrigerant required), <strong>mechanical cooling</strong> (R-134a refrigerant compressors handle the load on warm days), or a <strong>combined mode</strong> using both. The ACCs serve the entire building — the fan walls are one of several loads on the chilled water loop. The full ACC operation is covered in the separate chiller guide.</p>
+      </div>
+      <div class="eng-block">
+        <div class="eng-block-title">Chilled Water Pumps (CHWPs) &amp; the glycol mix</div>
+        <p>The CHWPs circulate a <strong>27% glycol / 73% water mixture</strong> from the ACCs to all building loads, including the 21 fan walls. Glycol is added to protect the system against freezing. The loop is closed and pressurised — warm fluid returns from the building loads back to the ACCs to be re-chilled continuously.</p>
+      </div>
+      <div class="eng-block">
+        <div class="eng-block-title">Why the air loop is closed — humidity control</div>
+        <p>Hot exhaust air from the server racks is contained in the hot aisles (enclosed with sliding glass doors) and directed via a <strong>return plenum</strong> back to the mechanical gallery, where it is drawn back into the fan wall units. This closed air loop means the facility is not continuously ingesting outside air at unpredictable humidity levels. Recirculating the same air mass makes it far easier to maintain stable humidity in the data hall without constant humidification or dehumidification correction.</p>
+      </div>
+    </div>
+    <div class="eng-section">
+      <h3>How the unit controls temperature</h3>
+      <p>Each fan wall unit independently controls its discharge air temperature. The BACnet controller reads the discharge air temperature sensors and modulates the EPIV valve to drive the air temperature toward the setpoint (default <strong>55°F</strong>). When the discharge air is warmer than setpoint, the valve opens further to increase chilled water flow. When it is at or below setpoint, the valve modulates closed.</p>
+      <div class="warn-box"><strong>Important for operators:</strong> The cooling valve is always under the unit's own control — in all operating modes. If you see a discharge temperature alarm, the correct response is to check the HMI for valve output percentage and chilled water flow, and escalate if the unit is not responding. Do not attempt to command the valve from the BAS or HMI directly.</div>
+      <p>If the discharge air temperature sensors fail, the controller enters a safe state and drives the valve to a configured failure position (default: closed). This will appear on the HMI as a sensor failure alarm alongside a discharge temperature alarm — escalate immediately.</p>
+    </div>
+    <div class="eng-section">
+      <h3>Fan speed control — Local vs Remote</h3>
+      <p>Fan speed operation has two selectable modes. On this site the units normally operate in <strong>Remote mode</strong>, where the BMS (Building Management System) controls fan speed across all 21 units based on pressure sensors in the data hall. Operators and technicians should be aware of both modes and what to expect from each.</p>
+      <div class="mode-cards">
+        <div class="mode-card local">
+          <strong>Local mode</strong>
+          The unit controls its own fan speed based on the return air temperature it is measuring. When the return air rises above the setpoint (default 70°F), fans speed up. When it falls, fans slow to minimum (30%). No BMS connection is needed. Used as a fallback if BMS communication is lost.
+        </div>
+        <div class="mode-card remote">
+          <strong>Remote mode (normal operation)</strong>
+          The BMS commands fan speed directly across all 21 units, using data hall pressure sensors to calculate the right speed. The unit follows the BMS command as long as the BMS continues to send a regular heartbeat signal. This is the standard operating mode on this site.
+        </div>
+      </div>
+      <div class="info-box"><strong>If the BMS loses communication while in Remote mode:</strong> By default, the unit holds its last commanded fan speed and generates a communication alarm on the HMI. If you need to take local control during a BMS outage, log in to the HMI (PIN 9675), navigate to the Fans screen, and switch Fan Control Mode to Local. Notify your supervisor and the controls team.</div>
+    </div>
+    <div class="eng-section">
+      <h3>Rounds — what to check on each visit</h3>
+      <div class="rounds-list">
+        <div class="rounds-item">
+          <div class="rounds-icon">💧</div>
+          <div>
+            <div class="rounds-title">Drain pan — check for standing water</div>
+            <div class="rounds-desc">Inspect the bathtub-style drain pan under each unit on the mechanical gallery floor. Some condensate drainage is normal. <strong>Pooled or standing water is not normal</strong> — it suggests condensate is not draining, a condensate pump issue, or a more significant water source. Investigate and escalate. Note that the rope leak detector sits in this pan and will alarm if water is present, but do not rely solely on the alarm — a visual check is part of every round.</div>
+          </div>
+        </div>
+        <div class="rounds-item">
+          <div class="rounds-icon">🔔</div>
+          <div>
+            <div class="rounds-title">HMI — check for active alarms</div>
+            <div class="rounds-desc">The 7″ HMI touchscreen is visible from the mechanical gallery on the right side of each right-hand unit. The Alarm Log button in the lower navigation bar displays a <strong>red notification badge</strong> when any alarm is active or unacknowledged. Check this on every unit during rounds. Common alarms to know: filter DP high, floor leak detector, discharge temp high, fan mismatch (SF1–SF9), and cooling flow. See the Specs &amp; Alarms tab for the full list and first response for each.</div>
+          </div>
+        </div>
+        <div class="rounds-item">
+          <div class="rounds-icon">▦</div>
+          <div>
+            <div class="rounds-title">Filters — physical inspection</div>
+            <div class="rounds-desc">Visually inspect the filter bank on the gallery face of each unit. Look for <strong>physical damage</strong> (torn media, bent frames, dislodged panels), <strong>heavy visible loading</strong> (darkened media indicates particle buildup), or <strong>collapsed filters</strong> that may have been drawn inward by negative pressure. A damaged or missing filter allows unfiltered air to reach the coil, accelerating fouling. The HMI filter alarm is the primary indicator for scheduled replacement, but physical damage requires immediate attention regardless of alarm status.</div>
+          </div>
+        </div>
+        <div class="rounds-item">
+          <div class="rounds-icon">👂</div>
+          <div>
+            <div class="rounds-title">Abnormal noise or vibration</div>
+            <div class="rounds-desc">The fan section should produce a consistent, even airflow sound. Listen and feel for anything unusual: <strong>rattling or clicking</strong> can indicate a loose component or debris in the fan section; <strong>grinding or squealing</strong> can indicate a bearing fault in one of the nine ECM fans; <strong>intermittent thumping</strong> can indicate blade imbalance. Even if the HMI shows all nine fans healthy, unusual noise warrants escalation — the dry-contact fan status only confirms the fan is running, not that it is running cleanly.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="eng-section">
+      <h3>Physical layout — what you see in the mechanical gallery</h3>
+      <p>The fan wall units form the physical wall between the mechanical gallery and the data hall. Standing in the mechanical gallery and facing a <strong>right-hand unit</strong>:</p>
+      <div class="two-col">
+        <div class="eng-block">
+          <div class="eng-block-title">What you see</div>
+          <ul>
+            <li>The full <strong>filter bank</strong> occupies the main face — 4 columns × 4 rows of 24″×24″ filters</li>
+            <li>To the <strong>right</strong> of the filter bank is the <strong>electrical panel enclosure</strong> with the 7″ HMI touchscreen mounted on its door</li>
+            <li>The <strong>chilled water piping connections</strong> enter and exit at the top of the unit</li>
+            <li>At the base of the unit, the <strong>bathtub drain pan</strong> is visible on the gallery floor, with the rope leak detector cable inside it</li>
+            <li>The <strong>EPIV valve</strong> is located inside the unit on the coil section and is accessible from the gallery side</li>
+          </ul>
+        </div>
+        <div class="eng-block">
+          <div class="eng-block-title">What is behind the unit (data hall side)</div>
+          <ul>
+            <li>The discharge face of the unit opens directly into the data hall — cooled supply air exits here into the cold aisles</li>
+            <li>Server rack fronts face the cold aisles and draw supply air from the fan wall discharge</li>
+            <li>Hot aisle containment (sliding glass doors) encloses the rear of the racks, directing exhaust air into the return plenum back to the mechanical gallery</li>
+          </ul>
+        </div>
+      </div>
+      <div class="info-box" style="margin-top:10px"><strong>Left-hand units:</strong> The 3 left-hand units are mirror images of the right-hand units. The electrical panel and HMI are on the <strong>left side</strong> of the filter bank when facing the unit from the gallery. Handing also affects the orientation of the EPIV and CHW piping assemblies — always confirm before ordering replacement parts.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SPECS & ALARMS TAB ===== -->
+<div id="tab-specs" class="panel">
+  <div class="section">
+    <div class="section-title">Unit specifications</div>
+    <table class="ref-table">
+      <thead><tr><th>Parameter</th><th>Value</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Model</strong></td><td>York MCH CRAH (Fan Wall)</td><td><span class="pill pill-blue">Mission Critical Horizontal</span></td></tr>
+        <tr><td><strong>Qty on site</strong></td><td>21 units</td><td>3 LH · 18 RH</td></tr>
+        <tr><td><strong>Airflow (each)</strong></td><td>76,000 CFM</td><td>At max fan speed</td></tr>
+        <tr><td><strong>Fan count</strong></td><td>9 per unit (3×3 array)</td><td>EBM-Pabst M3G150 ECM</td></tr>
+        <tr><td><strong>Fan voltage</strong></td><td>415V / 3-phase / 60 Hz</td><td>Range 380–480 VAC</td></tr>
+        <tr><td><strong>Fan speed range</strong></td><td>30–100%</td><td>Minimum 30% in steady-state operation</td></tr>
+        <tr><td><strong>Max fan power (each)</strong></td><td>4,400 W · 6.6 A</td><td>At maximum load</td></tr>
+        <tr><td><strong>Filters</strong></td><td>4″ MERV 8, 24×24</td><td>16 per unit · front-load · gallery-side</td></tr>
+        <tr><td><strong>Filter alarm threshold</strong></td><td>0.81 inH₂O</td><td>Sustained 5 min before alarm fires</td></tr>
+        <tr><td><strong>CHW fluid</strong></td><td>27% glycol / 73% water</td><td>Closed loop via rooftop ACCs + CHWPs</td></tr>
+        <tr><td><strong>CHW connections</strong></td><td>Top manifold</td><td>Supply &amp; return both at top of unit</td></tr>
+        <tr><td><strong>Max CHW pressure</strong></td><td>130 psi</td><td>Max design system pressure</td></tr>
+        <tr><td><strong>Max fluid temperature</strong></td><td>95°F</td><td>Operating limit</td></tr>
+        <tr><td><strong>Control valve</strong></td><td>Belimo EPIV · 2-way</td><td>Pressure-independent · 0% close-off leakage</td></tr>
+        <tr><td><strong>Discharge temp setpoint</strong></td><td>55°F (default)</td><td>Adjustable at service level — authorised personnel only</td></tr>
+        <tr><td><strong>Return temp setpoint</strong></td><td>70°F (default)</td><td>Used in Local fan speed mode</td></tr>
+        <tr><td><strong>BAS communication</strong></td><td>BACnet/IP</td><td>Via Metasys SNC controller</td></tr>
+        <tr><td><strong>HMI software</strong></td><td>Version 4</td><td>Confirms on HMI Settings screen</td></tr>
+        <tr><td><strong>HMI display</strong></td><td>7″ Loytec LVIS-3ME7-G2</td><td>Gallery-facing · service PIN 9675</td></tr>
+        <tr><td><strong>Controller UPS</strong></td><td>Sola HD 500 VA</td><td>Controller &amp; HMI only — not fans</td></tr>
+        <tr><td><strong>Warranty</strong></td><td>2 years parts from shipment</td><td>Field software changes void warranty</td></tr>
+        <tr><td><strong>Leak detector</strong></td><td>Rope style · drain pan</td><td>In mechanical gallery bathtub pan at unit base</td></tr>
+        <tr><td><strong>Suction / discharge</strong></td><td>Gallery / Data hall</td><td>Units form the physical dividing wall</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="divider"></div>
+  <div class="section">
+    <div class="section-title">HMI alarms — first response for operators &amp; technicians</div>
+    <div class="alarm-grid">
+      <div class="alarm-row">
+        <div><div class="alarm-name">Filter DP high</div></div>
+        <div class="alarm-desc">Filter resistance ≥ 0.81 inH₂O for 5 min. Inspect filters physically. Schedule replacement. Alarm self-resets when DP drops. A clogged filter can reduce airflow and cause downstream temperature alarms.</div>
+        <span class="alarm-delay delay-long">5 min</span>
+      </div>
+      <div class="alarm-row">
+        <div><div class="alarm-name">Floor leak detector</div></div>
+        <div class="alarm-desc">Moisture detected in the drain pan or a wiring fault. Respond immediately — identify the source. Check the drain pan visually. Escalate. Do not attempt to reset if residue is present on the rope sensor cable.</div>
+        <span class="alarm-delay delay-instant">Immediate</span>
+      </div>
+      <div class="alarm-row">
+        <div><div class="alarm-name">Discharge temp — high</div></div>
+        <div class="alarm-desc">Discharge air ≥ 80°F (default) for 5 min. Check the Cooling screen on the HMI — note the valve output % and cooling flow reading. Check CHW supply is active. Escalate if the unit is not responding.</div>
+        <span class="alarm-delay delay-long">5 min</span>
+      </div>
+      <div class="alarm-row">
+        <div><div class="alarm-name">Return temp — high</div></div>
+        <div class="alarm-desc">Return air ≥ 120°F (default) for 5 min. Indicates the unit is not keeping up with heat load. Check fan operation on the Fans screen. Check for discharge temp alarm simultaneously. Escalate.</div>
+        <span class="alarm-delay delay-long">5 min</span>
+      </div>
+      <div class="alarm-row">
+        <div><div class="alarm-name">Cooling flow</div></div>
+        <div class="alarm-desc">Measured CHW flow is outside the expected range for the current valve command, sustained 5 min. Check CHW pump status and whether the unit's isolation valve is open. Escalate to controls/mechanical team.</div>
+        <span class="alarm-delay delay-long">5 min</span>
+      </div>
+      <div class="alarm-row">
+        <div><div class="alarm-name">Supply fans SF1–SF9</div></div>
+        <div class="alarm-desc">Individual fan mismatch — that specific fan failed to confirm it is running, or lost run status. The unit continues operating on the remaining fans. Note the fan number and log for maintenance follow-up. Escalate if multiple fans alarm.</div>
+        <span class="alarm-delay delay-short">30 s</span>
+      </div>
+      <div class="alarm-row">
+        <div><div class="alarm-name">External comm alarm</div></div>
+        <div class="alarm-desc">BMS communication to this unit has been lost while in Remote mode. The unit is holding its last fan speed. Notify the controls team. If local temperature control is needed, switch to Local mode at the HMI (service login required).</div>
+        <span class="alarm-delay delay-instant">2 min watchdog</span>
+      </div>
+      <div class="alarm-row">
+        <div><div class="alarm-name">General alarm (GEN-A)</div></div>
+        <div class="alarm-desc">Active whenever any alarm is active. Shown as a red badge on the Alarm Log button in the HMI lower navigation bar. Navigate to the Alarm screen to identify the specific condition.</div>
+        <span class="alarm-delay delay-instant">Immediate</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== QUIZ TAB ===== -->
+<div id="tab-quiz" class="panel">
+  <div class="section">
+    <div id="quiz-container"></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+<div class="section" style="padding-bottom:0">
+  <div class="tip-box">
+    <strong>Field reminder — handing &amp; parts:</strong> Stand with airflow at your back (facing the data hall direction) to determine handing. Of the 21 units, <strong>18 are right-hand and 3 are left-hand</strong>. Always confirm handing before ordering replacement parts that are orientation-specific, including EPIVs and piping assemblies.
+  </div>
+</div>
+
+<script>
+function switchTab(name,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='quiz') initQuiz();
+}
+function showCallout(id,e){
+  document.querySelectorAll('.callout').forEach(c=>c.classList.remove('visible'));
+  const el=document.getElementById(id);
+  const wrap=document.getElementById('dwrap');
+  const eRect=e.currentTarget.closest('svg').getBoundingClientRect();
+  const pxX=(e.clientX-eRect.left)/eRect.width*wrap.clientWidth;
+  const pxY=(e.clientY-eRect.top)/eRect.height*wrap.clientHeight;
+  let left=pxX+20, top=pxY-20;
+  if(left+270>wrap.clientWidth) left=pxX-280;
+  if(top+190>wrap.clientHeight) top=wrap.clientHeight-200;
+  if(top<10) top=10;
+  el.style.left=Math.max(8,left)+'px';
+  el.style.top=top+'px';
+  el.classList.add('visible');
+  e.stopPropagation();
+}
+function closeCallout(id){document.getElementById(id).classList.remove('visible');}
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.hotspot')&&!e.target.closest('.callout'))
+    document.querySelectorAll('.callout').forEach(c=>c.classList.remove('visible'));
+});
+function toggleComp(card,bodyId){
+  const body=document.getElementById(bodyId);
+  const open=body.style.display!=='none';
+  document.querySelectorAll('.comp-body').forEach(b=>b.style.display='none');
+  document.querySelectorAll('.comp-card').forEach(c=>c.classList.remove('active'));
+  if(!open){body.style.display='block';card.classList.add('active');}
+}
+const steps=[
+  {title:"Hot aisle exhaust enters the return plenum",body:"Server racks in the data hall exhaust hot air — typically <strong>~75–90°F</strong> — into the <strong>contained hot aisles</strong>, which are enclosed with sliding glass doors. This contained exhaust is directed into a <strong>return plenum</strong> that routes the air back to the mechanical gallery. The fan wall units form the physical wall between the gallery and the data hall, so the return air arrives directly at the filter face of each unit.",color:"#faece7",border:"#993c1d",nc:"#993c1d"},
+  {title:"Air passes through 16 MERV 8 filters",body:"The first thing the warm gallery air contacts is the <strong>4-inch MERV 8 filter array</strong> — 16 panels in a 4×4 grid on the mechanical gallery face of the unit. Filters protect the cooling coil fins from particulate fouling. They are front-loaded and can be replaced while the unit is running. A differential pressure transducer monitors filter loading and triggers an alarm at <strong>0.81 inH₂O sustained for 5 minutes</strong>.",color:"#e6f1fb",border:"#185fa5",nc:"#185fa5"},
+  {title:"9 ECM fans draw air through the unit",body:"Nine <strong>EBM-Pabst M3G150 ECM fans</strong> in a 3×3 array behind the filters draw gallery air in and push it across the cooling coil. All nine run at the same speed, controlled between 30–100% by the BACnet controller. On this site the <strong>BMS (Building Management System)</strong> commands fan speed remotely based on data hall pressure sensors. Total airflow at full speed: <strong>76,000 CFM</strong>.",color:"#eaf3de",border:"#3b6d11",nc:"#3b6d11"},
+  {title:"Heat transfers across the chilled water coil",body:"Air passes across the <strong>chilled water coil</strong>, supplied with cold glycol-water mix (27% glycol / 73% water) from the 24 rooftop air-cooled chillers via the building's Chilled Water Pumps (CHWPs). Heat transfers from the warm air into the cold fluid. The <strong>Belimo EPIV valve</strong> modulates water flow to maintain the discharge air temperature setpoint (default 55°F). Any condensation drips into the stainless drain pan below.",color:"#eeedfe",border:"#534ab7",nc:"#534ab7"},
+  {title:"Cooled air discharges into the data hall",body:"Supply air exits the <strong>rear of the unit directly into the data hall</strong> at approximately <strong>~67°F</strong>. Server rack fronts draw this cool air in from the cold aisles. Hot aisle containment at the rear of the racks prevents exhaust air from mixing with the cold supply. The BMS coordinates all 21 fan walls together to maintain the correct cold aisle conditions.",color:"#e1f5ee",border:"#0f6e56",nc:"#0f6e56"},
+  {title:"Warm water returns to the rooftop ACCs",body:"The warmed glycol-water mix exits via the <strong>top manifold return connection</strong> and travels back through building pipework to the 24 rooftop air-cooled chillers. Depending on ambient conditions, the ACCs reject the heat using their integral fans (free cooling), R-134a refrigerant compressors (mechanical cooling), or both simultaneously. Re-chilled fluid is circulated back by the CHWPs. The loop is <strong>continuous, closed, and pressurized</strong>.",color:"#e6f1fb",border:"#185fa5",nc:"#185fa5"}
+];
+let curStep=0;
+function renderStep(){
+  const s=steps[curStep];
+  document.getElementById('step-nav').innerHTML=steps.map((_,i)=>`<div class="step-dot${i===curStep?' active':''}"></div>`).join('');
+  document.getElementById('step-card').innerHTML=`<div class="step-header" style="background:${s.color};border-bottom:0.5px solid var(--color-border-tertiary,#e0ddd6)"><div class="step-num" style="background:${s.color};color:${s.nc};border:1px solid ${s.border}">${curStep+1}</div><div class="step-title">${s.title}</div></div><div class="step-body" style="padding-top:12px">${s.body}</div><div style="padding:8px 16px 6px;font-size:12px;color:var(--color-text-tertiary,#aaa)">Step ${curStep+1} of ${steps.length}</div>`;
+  document.getElementById('btn-prev').disabled=curStep===0;
+  const nb=document.getElementById('btn-next');
+  nb.textContent=curStep===steps.length-1?'↺ Restart':'Next →';
+  nb.classList.toggle('primary',curStep<steps.length-1);
+}
+function stepNav(dir){
+  if(dir===1&&curStep===steps.length-1) curStep=0;
+  else curStep=Math.max(0,Math.min(steps.length-1,curStep+dir));
+  renderStep();
+}
+renderStep();
+const questions=[
+  {q:"Why is the data hall air loop closed — recirculating exhaust air back to the fan walls — rather than using fresh outside air?",opts:["Outside air would contaminate the servers with dust","Recirculating the same air mass makes humidity control far easier and more stable","Outside air is too cold and would overcool the servers","The building does not have openings to the outside"],correct:1,fb:"Continuously ingesting outside air at unpredictable humidity levels would require constant humidification or dehumidification correction. Recirculating the same air mass keeps humidity far more stable."},
+  {q:"During a routine round, you notice standing water in the bathtub drain pan under a fan wall unit and no alarm on the HMI. What should you do?",opts:["Ignore it — no alarm means no problem","Note it in the log and check again next round","Investigate and escalate — standing water is not normal regardless of alarm status","Reset the unit from the HMI to clear any latent fault"],correct:2,fb:"Standing water in the drain pan is not normal even without an alarm. The leak detector sits in that pan and will alarm if it contacts moisture, but a visual check is part of every round for exactly this reason. Investigate and escalate."},
+  {q:"A filter differential pressure alarm appears on the HMI. What is the alarm threshold and how long must it persist before the alarm fires?",opts:["0.50 inH₂O for 30 seconds","0.81 inH₂O for 5 minutes","1.25 inH₂O for 5 minutes","0.81 inH₂O immediately"],correct:1,fb:"The filter alarm triggers at 0.81 inH₂O sustained for 5 minutes. This delay is built in to avoid nuisance alarms from brief pressure spikes."},
+  {q:"The BMS loses communication with a fan wall unit while in Remote mode. What does the unit do by default?",opts:["Immediately shuts the fans off","Switches automatically to Local temperature control","Holds the last commanded fan speed and generates a communication alarm","Opens the EPIV valve fully to prevent overheating"],correct:2,fb:"By default the unit holds its last commanded fan speed and generates an External Communication alarm on the HMI. It does not switch to Local mode automatically — that requires a manual action at the HMI by authorized personnel."},
+  {q:"On rounds, you hear a grinding noise coming from one of the fan wall units. The HMI shows all nine fan status lights as healthy. What is the correct response?",opts:["No action needed — the HMI confirms all fans are running normally","Escalate — fan status contacts only confirm a fan is running, not that it is running without a mechanical fault","Reset the unit from the HMI to clear the fault","Open the filter bank and visually inspect the fan blades"],correct:1,fb:"Fan status dry contacts only confirm the fan is running — they do not detect bearing wear or mechanical faults. Unusual noise warrants escalation for inspection by a qualified technician even if the HMI shows no alarms."},
+  {q:"How many fan wall units are on site, and what is the handing split?",opts:["24 units — all right-hand","21 units — 18 right-hand, 3 left-hand","21 units — all right-hand","18 units — 15 right-hand, 3 left-hand"],correct:1,fb:"The revised submittal confirmed 21 units — 18 right-hand and 3 left-hand. Handing must be confirmed before ordering orientation-specific parts such as EPIVs and piping assemblies."},
+  {q:"What is the purpose of the 27% glycol in the chilled water mix supplied to the fan wall coils?",opts:["It improves heat transfer capacity over plain water","It lowers the freezing point of the fluid to protect the system in cold conditions","It prevents biological growth in the coil","It reduces the viscosity of the fluid at low temperatures"],correct:1,fb:"Glycol depresses the freeze point of the water, protecting the pipework, coil, and fittings against freezing. At 27% concentration the heat transfer capacity remains close to that of plain water."},
+  {q:"A fan SF4 mismatch alarm appears on the HMI. What is the immediate impact on unit operation and what should you do?",opts:["The unit shuts down — evacuate the data hall and call the emergency line","The unit continues operating on the remaining 8 fans. Note the alarm, log it, and escalate for maintenance follow-up","The unit switches to Local mode automatically","The EPIV valve closes to protect the coil"],correct:1,fb:"A single fan mismatch alarm does not shut the unit down — the remaining eight fans continue to run and the unit compensates. Note which fan has alarmed, log it, and escalate for maintenance inspection. If multiple fans alarm simultaneously, escalate urgently."}
+];
+let qState=[],qCurrent=0,quizInited=false;
+function initQuiz(){
+  if(quizInited) return;
+  quizInited=true;
+  qState=questions.map(()=>({answered:false,correct:false,chosen:-1}));
+  renderQuiz();
+}
+function renderQuiz(){
+  const c=document.getElementById('quiz-container');
+  if(qCurrent>=questions.length){
+    const score=qState.filter(s=>s.correct).length;
+    const pct=Math.round(score/questions.length*100);
+    c.innerHTML=`<div class="quiz-progress">${qState.map(s=>`<div class="quiz-prog-dot ${s.answered?(s.correct?'done-right':'done-wrong'):''}"></div>`).join('')}</div><div class="section-title">Knowledge check complete</div><div class="quiz-score" style="color:${pct>=75?'#0f6e56':'#993c1d'}">${score} / ${questions.length} correct</div><div class="quiz-score-sub">${pct}% — ${pct>=90?'Excellent work!':pct>=75?'Good — review any missed questions.':'Review the tabs above and try again.'}</div><div style="margin-top:1rem;display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" onclick="restartQuiz()">Try again ↺</button><button class="btn" onclick="reviewMissed()">Review missed</button></div><div id="review-area" style="margin-top:1rem"></div>`;
+    return;
+  }
+  const q=questions[qCurrent],st=qState[qCurrent];
+  c.innerHTML=`<div class="quiz-progress">${qState.map((s,i)=>`<div class="quiz-prog-dot ${i===qCurrent?'current':''} ${s.answered&&i!==qCurrent?(s.correct?'done-right':'done-wrong'):''}"></div>`).join('')}</div><div class="quiz-q">Q${qCurrent+1} of ${questions.length}: ${q.q}</div><div class="quiz-opts">${q.opts.map((o,i)=>`<div class="quiz-opt${st.answered?' locked'+(i===q.correct?' correct':(i===st.chosen?' wrong':'')):''}\" onclick="answerQ(${i})">${o}</div>`).join('')}</div>${st.answered?`<div class="quiz-fb ${st.correct?'correct':'wrong'}">${st.correct?'✓':'✗'} ${q.fb}</div><div style="margin-top:10px"><button class="btn primary" onclick="nextQ()">${qCurrent<questions.length-1?'Next question →':'See results'}</button></div>`:''}`;
+}
+function answerQ(i){if(qState[qCurrent].answered) return;qState[qCurrent]={answered:true,chosen:i,correct:i===questions[qCurrent].correct};renderQuiz();}
+function nextQ(){qCurrent++;renderQuiz();}
+function restartQuiz(){qState=questions.map(()=>({answered:false,correct:false,chosen:-1}));qCurrent=0;renderQuiz();}
+function reviewMissed(){
+  const missed=questions.filter((_,i)=>qState[i].answered&&!qState[i].correct);
+  const area=document.getElementById('review-area');
+  if(!missed.length){area.innerHTML='<p style="font-size:13px;color:var(--color-text-secondary)">No missed questions — well done!</p>';return;}
+  area.innerHTML='<div class="section-title" style="margin-bottom:.75rem">Missed questions</div>'+missed.map(q=>`<div style="margin-bottom:1rem;padding:12px 14px;border:0.5px solid var(--color-border-tertiary,#e0ddd6);border-radius:10px;font-size:13px"><div style="font-weight:500;margin-bottom:6px">${q.q}</div><div style="color:#0f6e56;margin-bottom:4px">✓ ${q.opts[q.correct]}</div><div style="color:var(--color-text-secondary,#888)">${q.fb}</div></div>`).join('');
+}
+</script>
+</body>
+</html>
