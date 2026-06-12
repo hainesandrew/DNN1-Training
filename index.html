@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Training Modules</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0D1117;
+      --surface:   #161B22;
+      --border:    #21262D;
+      --accent:    #2F81F7;
+      --accent-glow: rgba(47, 129, 247, 0.18);
+      --text:      #E6EDF3;
+      --muted:     #8B949E;
+      --success:   #3FB950;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      padding: 48px 24px 80px;
+    }
+
+    header {
+      max-width: 720px;
+      margin: 0 auto 48px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 32px;
+    }
+
+    .eyebrow {
+      font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: clamp(22px, 4vw, 30px);
+      font-weight: 600;
+      line-height: 1.25;
+      color: var(--text);
+    }
+
+    .subtitle {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      max-width: 520px;
+    }
+
+    .module-grid {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .section-label {
+      font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      padding-left: 16px;
+    }
+
+    .module-card {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--border);
+      border-radius: 6px;
+      padding: 20px 20px 20px 18px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-left-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+      position: relative;
+    }
+
+    .module-card:hover,
+    .module-card:focus-visible {
+      border-left-color: var(--accent);
+      background: #1C2230;
+      box-shadow: 0 0 0 1px var(--border), 0 4px 20px var(--accent-glow);
+      outline: none;
+    }
+
+    .module-card.coming-soon {
+      opacity: 0.55;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .module-icon {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .module-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .module-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .module-desc {
+      font-size: 13px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .badge {
+      flex-shrink: 0;
+      font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 20px;
+      border: 1px solid;
+    }
+
+    .badge-overview {
+      color: var(--accent);
+      border-color: rgba(47, 129, 247, 0.4);
+      background: rgba(47, 129, 247, 0.08);
+    }
+
+    .badge-ready {
+      color: var(--success);
+      border-color: rgba(63, 185, 80, 0.4);
+      background: rgba(63, 185, 80, 0.08);
+    }
+
+    .badge-soon {
+      color: var(--muted);
+      border-color: var(--border);
+      background: transparent;
+    }
+
+    .chevron {
+      flex-shrink: 0;
+      color: var(--muted);
+      opacity: 0;
+      transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+
+    .module-card:hover .chevron {
+      opacity: 1;
+      transform: translateX(3px);
+    }
+
+    footer {
+      max-width: 720px;
+      margin: 48px auto 0;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .module-card, .chevron { transition: none; }
+    }
+
+    @media (max-width: 480px) {
+      .badge { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <p class="eyebrow">Data Center Operations</p>
+    <h1>Training Modules</h1>
+    <p class="subtitle">Select a module below to begin. Overview modules introduce system fundamentals; technical modules provide in-depth operational training.</p>
+  </header>
+
+  <main>
+    <div class="module-grid">
+
+      <p class="section-label">Overview</p>
+
+      <a href="power-distribution.html" class="module-card">
+        <div class="module-icon">⚡</div>
+        <div class="module-info">
+          <div class="module-title">Power Distribution</div>
+          <div class="module-desc">High-level overview of facility power flow, PDUs, redundancy topologies, and key concepts</div>
+        </div>
+        <span class="badge badge-overview">Overview</span>
+        <svg class="chevron" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M6.22 3.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 0 1 0-1.06Z"/>
+        </svg>
+      </a>
+
+      <a href="cooling-infrastructure.html" class="module-card">
+        <div class="module-icon">❄️</div>
+        <div class="module-info">
+          <div class="module-title">Cooling Infrastructure</div>
+          <div class="module-desc">High-level overview of data center cooling strategies, airflow management, and PUE</div>
+        </div>
+        <span class="badge badge-overview">Overview</span>
+        <svg class="chevron" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M6.22 3.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 0 1 0-1.06Z"/>
+        </svg>
+      </a>
+
+      <p class="section-label" style="margin-top:16px;">In-Depth Technical Training</p>
+
+      <a href="fan-wall-unit.html" class="module-card">
+        <div class="module-icon">🌀</div>
+        <div class="module-info">
+          <div class="module-title">Fan Wall Unit</div>
+          <div class="module-desc">Variable speed fans, airflow measurement, N+1 redundancy, and maintenance procedures</div>
+        </div>
+        <span class="badge badge-ready">Ready</span>
+        <svg class="chevron" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M6.22 3.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 0 1 0-1.06Z"/>
+        </svg>
+      </a>
+
+      <span class="module-card coming-soon">
+        <div class="module-icon">🧊</div>
+        <div class="module-info">
+          <div class="module-title">Chillers</div>
+          <div class="module-desc">Chiller plant operations, compressor types, condenser water systems, and efficiency optimization</div>
+        </div>
+        <span class="badge badge-soon">Coming Soon</span>
+      </span>
+
+      <span class="module-card coming-soon">
+        <div class="module-icon">⚙️</div>
+        <div class="module-info">
+          <div class="module-title">Generators</div>
+          <div class="module-desc">Standby diesel generators, automatic transfer switches, load testing, and fuel management</div>
+        </div>
+        <span class="badge badge-soon">Coming Soon</span>
+      </span>
+
+      <span class="module-card coming-soon">
+        <div class="module-icon">💨</div>
+        <div class="module-info">
+          <div class="module-title">DOAS — Dedicated Outdoor Air System</div>
+          <div class="module-desc">Ventilation, economizer modes, humidity control, and integration with cooling infrastructure</div>
+        </div>
+        <span class="badge badge-soon">Coming Soon</span>
+      </span>
+
+      <span class="module-card coming-soon">
+        <div class="module-icon">🔋</div>
+        <div class="module-info">
+          <div class="module-title">UPS &amp; Battery Systems</div>
+          <div class="module-desc">Runtime calculations, bypass procedures, and battery health monitoring</div>
+        </div>
+        <span class="badge badge-soon">Coming Soon</span>
+      </span>
+
+      <span class="module-card coming-soon">
+        <div class="module-icon">🔥</div>
+        <div class="module-info">
+          <div class="module-title">Fire Suppression</div>
+          <div class="module-desc">Suppression agents, detection systems, evacuation protocols, and testing</div>
+        </div>
+        <span class="badge badge-soon">Coming Soon</span>
+      </span>
+
+    </div>
+  </main>
+
+  <footer>
+    <span>Infrastructure Training — Internal Use</span>
+    <span>Last updated: June 2026</span>
+  </footer>
+
+</body>
+</html>
