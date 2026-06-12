@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;font-size:15px;line-height:1.6;color:var(--color-text-primary,#1a1a1a);background:transparent;padding:0 0 2rem}
+.hero{padding:2rem 1.5rem 1rem;border-bottom:0.5px solid var(--color-border-tertiary,#e0ddd6)}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;background:#e1f5ee;color:#0f6e56;margin-bottom:.75rem;letter-spacing:.04em;text-transform:uppercase}
+.hero h1{font-size:22px;font-weight:500;margin-bottom:.25rem}
+.hero p{font-size:14px;color:#5f5e5a}
+.section{padding:1.25rem 1.5rem}
+.section-title{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:1rem}
+.divider{height:0.5px;background:#e0ddd6;margin:0 1.5rem}
+.tip-box{margin:0 1.5rem;padding:12px 14px;border-left:3px solid #1D9E75;background:#f5f4ef;font-size:13px;color:#5f5e5a}
+.tip-box strong{color:#1a1a1a;font-weight:500}
+.info-box{padding:12px 14px;border-radius:10px;border:0.5px solid #e0ddd6;background:#f5f4ef;font-size:13px;color:#5f5e5a;line-height:1.6}
+.info-box strong{color:#1a1a1a;font-weight:500}
+
+.overview-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:1rem}
+@media(max-width:480px){.overview-grid{grid-template-columns:1fr 1fr}}
+.ocard{padding:12px 14px;border-radius:10px;border:0.5px solid #e0ddd6;background:#fff}
+.ocard .onum{font-size:24px;font-weight:600;line-height:1}
+.ocard .olabel{font-size:12px;color:#888;margin-top:3px}
+.ocard .osub{font-size:11px;color:#aaa;margin-top:2px}
+
+.tab-nav{display:flex;gap:4px;padding:1rem 1.5rem 0;border-bottom:0.5px solid #e0ddd6;overflow-x:auto}
+.tab-btn{font-size:13px;font-weight:500;padding:7px 14px;border-radius:8px 8px 0 0;border:0.5px solid transparent;background:transparent;cursor:pointer;color:#888;margin-bottom:-0.5px;border-bottom:2px solid transparent;white-space:nowrap}
+.tab-btn.active{background:#fff;color:#1a1a1a;border-color:#e0ddd6;border-bottom-color:#fff}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+.flow{display:flex;flex-direction:column;align-items:center;gap:0}
+.stage{width:100%;max-width:500px;position:relative}
+.stage-card{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;border:0.5px solid #e0ddd6;background:#fff;cursor:pointer;transition:border-color .15s,background .15s}
+.stage-card:hover{border-color:#c5c3bb;background:#f5f4ef}
+.stage-card.active{border-radius:10px 10px 0 0;border-bottom-color:transparent}
+.stage-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.stage-text{flex:1;min-width:0}
+.stage-label{font-size:14px;font-weight:500}
+.stage-sub{font-size:12px;color:#888;margin-top:1px}
+.stage-tag{font-size:11px;font-weight:500;padding:2px 8px;border-radius:12px;flex-shrink:0;white-space:nowrap}
+.arrow-wrap{display:flex;align-items:center;justify-content:center;height:28px;width:100%;max-width:500px;position:relative}
+.arrow-line{width:1px;height:100%;background:#c5c3bb;position:absolute;left:50%}
+.arrow-head{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid #c5c3bb}
+.detail-panel{max-height:0;overflow:hidden;transition:max-height .35s ease,opacity .3s;opacity:0;width:100%;max-width:500px}
+.detail-panel.open{max-height:340px;opacity:1}
+.detail-inner{padding:10px 14px 12px;border:0.5px solid #e0ddd6;border-top:none;border-radius:0 0 10px 10px;background:#f5f4ef;font-size:13px;color:#5f5e5a;line-height:1.6}
+.detail-inner strong{color:#1a1a1a;font-weight:500}
+.s-blue .stage-icon{background:#e6f1fb;color:#185fa5} .s-blue .stage-tag{background:#e6f1fb;color:#185fa5}
+.s-teal .stage-icon{background:#e1f5ee;color:#0f6e56} .s-teal .stage-tag{background:#e1f5ee;color:#0f6e56}
+.s-amber .stage-icon{background:#faeeda;color:#854f0b} .s-amber .stage-tag{background:#faeeda;color:#854f0b}
+.s-coral .stage-icon{background:#faece7;color:#993c1d} .s-coral .stage-tag{background:#faece7;color:#993c1d}
+.s-purple .stage-icon{background:#eeedfe;color:#534ab7} .s-purple .stage-tag{background:#eeedfe;color:#534ab7}
+.s-green .stage-icon{background:#eaf3de;color:#3b6d11} .s-green .stage-tag{background:#eaf3de;color:#3b6d11}
+
+.split-wrap{display:flex;gap:10px;width:100%;max-width:500px;margin:2px 0}
+.split-branch{flex:1;display:flex;flex-direction:column;align-items:center;gap:0}
+.split-card{width:100%;padding:10px 12px;border-radius:10px;border:0.5px solid #e0ddd6;background:#fff;cursor:pointer;transition:border-color .15s,background .15s;text-align:center}
+.split-card:hover{border-color:#c5c3bb;background:#f5f4ef}
+.split-card.active{border-radius:10px 10px 0 0;border-bottom-color:transparent}
+.split-label{font-size:13px;font-weight:500}
+.split-sub{font-size:11px;color:#888;margin-top:2px}
+.split-tag{display:inline-block;font-size:10px;font-weight:500;padding:2px 7px;border-radius:10px;margin-top:4px}
+.split-detail{max-height:0;overflow:hidden;transition:max-height .35s ease,opacity .3s;opacity:0;width:100%}
+.split-detail.open{max-height:300px;opacity:1}
+.split-detail .detail-inner{border-radius:0 0 10px 10px}
+
+.op-card{border:0.5px solid #e0ddd6;border-radius:10px;background:#fff;margin-bottom:10px;overflow:hidden}
+.op-header{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;user-select:none}
+.op-header:hover{background:#f5f4ef}
+.op-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.op-text{flex:1}
+.op-title{font-size:14px;font-weight:500}
+.op-sub{font-size:12px;color:#888;margin-top:1px}
+.op-chevron{font-size:11px;color:#aaa;transition:transform .25s;flex-shrink:0}
+.op-chevron.open{transform:rotate(180deg)}
+.op-body{max-height:0;overflow:hidden;transition:max-height .35s ease,opacity .3s;opacity:0}
+.op-body.open{max-height:700px;opacity:1}
+.op-body p{font-size:13px;color:#5f5e5a;line-height:1.7;padding:0 14px 12px}
+.op-body p+p{padding-top:0}
+.op-body strong{color:#1a1a1a;font-weight:500}
+
+.eskid-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:480px){.eskid-grid{grid-template-columns:1fr}}
+.eskid-card{border-radius:10px;border:0.5px solid #e0ddd6;overflow:hidden}
+.eskid-header{padding:10px 14px 8px;display:flex;align-items:center;gap:10px}
+.eskid-code{font-size:18px;font-weight:500;font-family:monospace}
+.eskid-meta{flex:1}
+.eskid-name{font-size:13px;font-weight:500}
+.eskid-type{font-size:12px;color:#888}
+.eskid-body{padding:8px 14px 12px;font-size:12px;color:#5f5e5a;line-height:1.6;border-top:0.5px solid #e0ddd6}
+.eskid-body strong{color:#1a1a1a;font-weight:500}
+.count-row{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap}
+.chip{font-size:11px;font-weight:500;padding:2px 8px;border-radius:10px}
+.mi-h{background:#e6f1fb} .mi-code{color:#185fa5} .mi-chip{background:#e6f1fb;color:#0c447c}
+.mh-h{background:#f5f4ef} .mh-code{color:#5f5e5a} .mh-chip{background:#f1efe8;color:#444441}
+
+.ref-table{width:100%;border-collapse:collapse;font-size:13px}
+.ref-table th{font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#888;padding:6px 10px;border-bottom:0.5px solid #e0ddd6;text-align:left}
+.ref-table td{padding:9px 10px;border-bottom:0.5px solid #e0ddd6;vertical-align:top}
+.ref-table tr:last-child td{border-bottom:none}
+.ref-table tr:hover td{background:#f5f4ef}
+.pill{display:inline-block;font-size:11px;padding:2px 7px;border-radius:10px;font-weight:500}
+.yes{color:#0f6e56;font-weight:500} .no{color:#993c1d;font-weight:500}
+.glossary{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.gcard{padding:12px 14px;border-radius:10px;border:0.5px solid #e0ddd6;background:#fff}
+.gcard .term{font-size:13px;font-weight:500;margin-bottom:4px}
+.gcard .def{font-size:12px;color:#888;line-height:1.5}
+
+.rack-compare{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:480px){.rack-compare{grid-template-columns:1fr}}
+.rack-card{border-radius:10px;border:0.5px solid #e0ddd6;overflow:hidden}
+.rack-header{padding:10px 14px;font-size:13px;font-weight:500}
+.rack-row{display:flex;justify-content:space-between;align-items:center;padding:7px 14px;border-top:0.5px solid #e0ddd6;font-size:12px}
+.rack-row .key{color:#888}
+
+.row-diagram{display:flex;flex-direction:column;gap:0;border:0.5px solid #e0ddd6;border-radius:10px;overflow:hidden}
+.row-band{display:flex;align-items:center;padding:10px 14px;gap:10px}
+.row-band .row-count{font-size:20px;font-weight:600;width:36px;text-align:center;flex-shrink:0}
+.row-band .row-info{flex:1}
+.row-band .row-label{font-size:13px;font-weight:500}
+.row-band .row-desc{font-size:11px;color:#888;margin-top:1px}
+.row-band .row-pills{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap}
+.row-band .row-pills .pill{font-size:10px}
+
+.loc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.loc-card{border-radius:10px;border:0.5px solid #e0ddd6;overflow:hidden}
+.loc-header{padding:9px 14px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px}
+.loc-body{padding:8px 14px 12px;font-size:12px;color:#5f5e5a;line-height:1.6;border-top:0.5px solid #e0ddd6}
+.loc-body strong{color:#1a1a1a;font-weight:500}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="badge">New Hire Study Guide</div>
+  <h1>Cooling infrastructure</h1>
+  <p>Data Center Facility Operator &amp; Technician — tap any stage to expand</p>
+</div>
+
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+  <button class="tab-btn" onclick="switchTab('flow')">Cooling flow</button>
+  <button class="tab-btn" onclick="switchTab('howworks')">How it works</button>
+  <button class="tab-btn" onclick="switchTab('hall')">Data hall</button>
+  <button class="tab-btn" onclick="switchTab('skids')">Mechanical skids</button>
+  <button class="tab-btn" onclick="switchTab('layout')">Site layout</button>
+  <button class="tab-btn" onclick="switchTab('ref')">Reference</button>
+</div>
+
+<!-- ===================== TAB: OVERVIEW ===================== -->
+<div class="tab-panel active" id="tab-overview">
+<div class="section">
+  <div class="section-title">Cooling at a glance</div>
+  <div class="overview-grid">
+    <div class="ocard"><div class="onum" style="color:#0f6e56">24</div><div class="olabel">Chillers (ACC)</div><div class="osub">Rooftop · air-cooled</div></div>
+    <div class="ocard"><div class="onum" style="color:#185fa5">24</div><div class="olabel">CHWPs</div><div class="osub">Rooftop · next to chillers</div></div>
+    <div class="ocard"><div class="onum" style="color:#0f6e56">21</div><div class="olabel">Fan walls</div><div class="osub">Data hall floor</div></div>
+    <div class="ocard"><div class="onum" style="color:#534ab7">36</div><div class="olabel">Server rows</div><div class="osub">All air-cooled by fan walls</div></div>
+    <div class="ocard"><div class="onum" style="color:#854f0b">8</div><div class="olabel">Mechanical skids</div><div class="osub">3 MI · 5 MH</div></div>
+    <div class="ocard"><div class="onum" style="color:#993c1d">2</div><div class="olabel">Chilled water tanks</div><div class="osub">South side · thermal buffer</div></div>
+  </div>
+
+  <div class="section-title">What this guide covers</div>
+  <div class="info-box" style="margin-bottom:1rem">
+    This guide covers how heat is removed from the data hall and the wider site — the full cooling loop from rooftop chillers through chilled water distribution, fan walls, airflow management, and supplemental liquid cooling for high-density racks. For how power reaches the mechanical cooling equipment, see the Power Distribution guide.
+  </div>
+
+  <div class="section-title">The fluid — glycol-water mixture</div>
+  <div style="padding:12px 14px;border-radius:10px;border:0.5px solid #e0ddd6;background:#fff;font-size:13px;color:#5f5e5a;line-height:1.7;margin-bottom:1rem">
+    <strong style="color:#1a1a1a">The CHWPs circulate a glycol-water mixture — not plain water.</strong> The site's chilled water loop runs a blend of <strong>27 % glycol to 73 % water</strong>. The glycol lowers the freezing point so the fluid won't freeze in the rooftop piping during cold weather, and it inhibits corrosion inside the pipe network. This mixture is what flows through the entire chilled water system — from the rooftop chillers, through the CHWPs, down to the fan wall coils and other site loads, and back again.
+  </div>
+
+  <div class="section-title">What the chillers supply</div>
+  <div style="padding:12px 14px;border-radius:10px;border:0.5px solid #e0ddd6;background:#fff;font-size:13px;color:#5f5e5a;line-height:1.7;margin-bottom:1rem">
+    <strong style="color:#1a1a1a">The 24 rooftop chillers serve the entire site — not just the data hall.</strong> They supply chilled glycol-water to the <strong>fan walls</strong> (server cooling), <strong>building air conditioning</strong> (office, common areas), and <strong>everything else on site that requires cooling</strong>. The chilled water system is the single source of cooling for all thermal loads across the facility.
+  </div>
+
+  <div class="section-title">Two cooling methods in the data hall</div>
+  <div style="padding:12px 14px;border-radius:10px;border:0.5px solid #e0ddd6;background:#fff;font-size:13px;color:#5f5e5a;line-height:1.7;margin-bottom:1rem">
+    <strong style="color:#1a1a1a">Every rack on site is air-cooled by the fan walls.</strong> All 36 server rows receive chilled air through open cold aisles, with hot aisle containment capturing exhaust heat on the rear side. This is the primary cooling system for the entire data hall.<br><br>
+    <strong style="color:#1a1a1a">The outer 24 high-density rows also receive supplemental glycol liquid cooling.</strong> These rows run high-density AI/compute workloads that generate far more heat per rack than air alone can handle. A glycol-water mixture circulates directly to heat exchangers at the rack, supplementing air cooling by capturing heat at the source.<br><br>
+    <strong style="color:#1a1a1a">The inner 12 rows are air-cooled only.</strong> These rows house the client's core scientific network servers. They produce less heat per rack and do not require liquid cooling — fan wall air is sufficient.
+  </div>
+
+  <div class="section-title">The cooling loop — summary</div>
+  <div class="info-box">
+    <strong>Rooftop chillers (ACCs)</strong> chill the glycol-water mixture and reject heat to the outside air → <strong>CHWPs</strong> (also on the roof, next to the chillers) pump the chilled mixture down into the building → <strong>fan walls</strong> draw warm room air across coils carrying the chilled mixture, cooling the air → cooled air enters <strong>open cold aisles</strong> → servers pull it in through the front, exhaust hot air out the back → <strong>hot aisle containment</strong> captures the exhaust → the warmed glycol-water returns to the rooftop chillers and the cycle repeats. For high-density rows, <strong>supplemental liquid cooling</strong> adds a second heat-removal path directly at the rack.
+  </div>
+</div>
+</div>
+
+<!-- ===================== TAB: COOLING FLOW ===================== -->
+<div class="tab-panel" id="tab-flow">
+<div class="section">
+  <div class="section-title">Cooling loop — tap each stage</div>
+  <div class="flow">
+
+    <div class="stage">
+      <div class="stage-card s-blue" onclick="tog('c1')">
+        <div class="stage-icon">❄️</div>
+        <div class="stage-text"><div class="stage-label">Air-cooled chillers (ACC)</div><div class="stage-sub">24 units on the roof · 3 per mechanical skid</div></div>
+        <span class="stage-tag s-blue">roof</span>
+      </div>
+      <div class="detail-panel" id="c1"><div class="detail-inner">
+        There are <strong>24 air-cooled chillers (ACCs)</strong> on the <strong>roof</strong> — 9 critical (served by MI skids) and 15 non-critical (served by MH skids). Each mechanical E-Skid owns exactly <strong>3 chillers</strong>. The chillers use a refrigerant cycle to extract heat from the returning warm glycol-water mixture and reject it directly to the outside air via built-in fans — no cooling towers or condenser water loops are needed. The chillers supply cooling for the <strong>entire site</strong>: fan walls, building A/C, and everything else that requires it.
+      </div></div>
+    </div>
+    <div class="arrow-wrap"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+
+    <div class="stage">
+      <div class="stage-card s-blue" onclick="tog('c2')">
+        <div class="stage-icon">💧</div>
+        <div class="stage-text"><div class="stage-label">Chilled water pumps (CHWP)</div><div class="stage-sub">24 pumps · rooftop · 3 per mechanical skid</div></div>
+        <span class="stage-tag s-blue">roof</span>
+      </div>
+      <div class="detail-panel" id="c2"><div class="detail-inner">
+        The <strong>24 CHWPs</strong> are located on the <strong>roof, directly next to the chillers</strong>. Each mechanical E-Skid owns <strong>3 CHWPs</strong> — one per chiller. The pumps circulate a <strong>27 % glycol / 73 % water mixture</strong> from the chillers down through the building's piping distribution to the fan wall coils, building A/C, and all other site cooling loads. Without pump flow, no chilled fluid reaches the cooling coils and the data hall heats up.
+      </div></div>
+    </div>
+    <div class="arrow-wrap"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+
+    <div class="stage">
+      <div class="stage-card s-teal" onclick="tog('c3')">
+        <div class="stage-icon">🌀</div>
+        <div class="stage-text"><div class="stage-label">Fan walls (21 total)</div><div class="stage-sub">Draw air across glycol-water coils</div></div>
+        <span class="stage-tag s-teal">data hall</span>
+      </div>
+      <div class="detail-panel" id="c3"><div class="detail-inner">
+        Each fan wall is a large array of fans that pulls <strong>warm room air across coils carrying the chilled glycol-water mixture</strong>, transferring heat from the air into the fluid. The now-cooled air is pushed into the cold aisles. There are <strong>21 fan walls</strong> on site, each owned by and dedicated to its mechanical E-Skid — they are not shared across skids. Fan walls serve <strong>all 36 server rows</strong> — both high-density and network.
+      </div></div>
+    </div>
+    <div class="arrow-wrap"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+
+    <div class="stage">
+      <div class="stage-card s-teal" onclick="tog('c4')">
+        <div class="stage-icon">🧊</div>
+        <div class="stage-text"><div class="stage-label">Open cold aisles</div><div class="stage-sub">Cooled air delivered to rack fronts</div></div>
+        <span class="stage-tag s-teal">air cooling</span>
+      </div>
+      <div class="detail-panel" id="c4"><div class="detail-inner">
+        Fan walls supply cold air into <strong>open cold aisles</strong> — the front-facing aisles where server intake grilles are located. "Open" means the cold aisle is not physically enclosed; cool air floods in from the fan walls and servers draw it in with their own internal fans. All 36 rows — both high-density and network — receive their air supply through these open cold aisles.
+      </div></div>
+    </div>
+    <div class="arrow-wrap"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+
+    <div class="stage">
+      <div class="stage-card s-amber" onclick="tog('c5')">
+        <div class="stage-icon">🖥️</div>
+        <div class="stage-text"><div class="stage-label">Server racks</div><div class="stage-sub">Air pulled front → back through servers</div></div>
+        <span class="stage-tag s-amber">load</span>
+      </div>
+      <div class="detail-panel" id="c5"><div class="detail-inner">
+        Servers draw cold air in through the <strong>front</strong> of the rack and exhaust hot air out the <strong>rear</strong>. This front-to-back airflow pattern is why cold aisle / hot aisle separation is critical — it keeps cold supply air and hot exhaust separated, preventing recirculation and ensuring servers receive air at the correct inlet temperature. Every rack on site follows this airflow direction.
+      </div></div>
+    </div>
+    <div class="arrow-wrap"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+
+    <div class="stage">
+      <div class="stage-card s-coral" onclick="tog('c6')">
+        <div class="stage-icon">🔥</div>
+        <div class="stage-text"><div class="stage-label">Hot aisle containment</div><div class="stage-sub">Captures &amp; isolates exhaust heat</div></div>
+        <span class="stage-tag s-coral">containment</span>
+      </div>
+      <div class="detail-panel" id="c6"><div class="detail-inner">
+        The rear-facing hot aisles are <strong>physically enclosed</strong> with panels and ceiling structures so that hot server exhaust cannot mix back into the cold supply air. This is the most important aspect of airflow management on the floor. Without containment, hot exhaust recirculates to rack intakes, raising inlet temperatures and reducing cooling effectiveness across the entire hall. Hot aisle containment runs along <strong>all 36 server rows</strong>.
+      </div></div>
+    </div>
+    <div class="arrow-wrap"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+
+    <!-- split: glycol vs air-only -->
+    <div style="width:100%;max-width:500px;text-align:center;padding:4px 0">
+      <span style="font-size:11px;font-weight:500;color:#888;letter-spacing:.06em;text-transform:uppercase">Additional cooling by row type</span>
+    </div>
+
+    <div class="split-wrap">
+      <div class="split-branch">
+        <div class="split-card" onclick="tog('cs1')" id="sc-cs1">
+          <div class="split-label" style="color:#534ab7">🧪 Supplemental liquid cooling</div>
+          <div class="split-sub">Outer 24 high-density rows</div>
+          <div class="split-tag" style="background:#eeedfe;color:#534ab7">Air + liquid</div>
+        </div>
+        <div class="split-detail" id="cs1"><div class="detail-inner" style="border:0.5px solid #e0ddd6;border-top:none;font-size:12px">
+          High-density AI/compute racks generate far more heat per rack than air cooling can handle alone — often 10–30× the watts per rack compared to network servers. A <strong>glycol-water mixture</strong> circulates through heat exchangers mounted directly at the rack, capturing heat at the source before it enters the room air. This <strong>supplements</strong> — not replaces — the fan wall air cooling. Both systems work together on these rows.
+        </div></div>
+      </div>
+      <div class="split-branch">
+        <div class="split-card" onclick="tog('cs2')" id="sc-cs2">
+          <div class="split-label" style="color:#0f6e56">🌀 Air-cooled only</div>
+          <div class="split-sub">Inner 12 network rows</div>
+          <div class="split-tag" style="background:#e1f5ee;color:#0f6e56">Air only</div>
+        </div>
+        <div class="split-detail" id="cs2"><div class="detail-inner" style="border:0.5px solid #e0ddd6;border-top:none;font-size:12px">
+          The inner 12 rows house the client's <strong>core scientific network servers</strong>. These racks produce less heat per rack than the high-density rows, so fan wall air cooling through the open cold aisles is sufficient on its own. There are <strong>no liquid cooling connections</strong> on these rows — heat is removed entirely through the air path: cold aisle in, hot aisle containment out, back to the fan walls.
+        </div></div>
+      </div>
+    </div>
+
+    <div class="arrow-wrap"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+
+    <div class="stage">
+      <div class="stage-card s-blue" onclick="tog('c8')">
+        <div class="stage-icon">♻️</div>
+        <div class="stage-text"><div class="stage-label">Heat rejection — return to roof</div><div class="stage-sub">Warm glycol-water back to ACCs · cycle repeats</div></div>
+        <span class="stage-tag s-blue">roof</span>
+      </div>
+      <div class="detail-panel" id="c8"><div class="detail-inner">
+        Warm glycol-water returning from the fan wall coils, liquid cooling loops, building A/C, and other site loads flows back up to the <strong>rooftop ACCs</strong>, where the chillers extract the heat and reject it to the outside air. The now-chilled mixture recirculates back down through the CHWPs and the cycle repeats continuously. Two <strong>chilled water tanks</strong> on the south side act as thermal buffer and pressure stabilisation for the system.
+      </div></div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- ===================== TAB: HOW IT WORKS ===================== -->
+<div class="tab-panel" id="tab-howworks">
+<div class="section">
+  <div class="section-title">How each component works — tap to expand</div>
+
+  <div class="op-card" onclick="toggleOp('op1')">
+    <div class="op-header">
+      <div class="op-icon" style="background:#e6f1fb;color:#185fa5">❄️</div>
+      <div class="op-text"><div class="op-title">Air-cooled chiller (ACC)</div><div class="op-sub">Refrigerant cycle · heat rejection to outside air</div></div>
+      <div class="op-chevron" id="chev-op1">▼</div>
+    </div>
+    <div class="op-body" id="op1">
+      <p>A chiller works like a large, industrial refrigerator. Inside, a <strong>refrigerant</strong> — a fluid with a very low boiling point — circulates through a closed loop of four stages.</p>
+      <p>First, warm glycol-water returning from the building passes through the <strong>evaporator</strong>, where the refrigerant absorbs heat from the fluid and boils into a gas. The now-chilled glycol-water is sent back into the building. The refrigerant gas is then compressed by the <strong>compressor</strong>, which raises its temperature and pressure significantly. The hot, high-pressure gas flows through the <strong>condenser coils</strong> on the outside of the unit, where large fans blow outdoor air across the coils — the heat transfers from the refrigerant into the air and the refrigerant condenses back into a liquid. Finally, it passes through an <strong>expansion valve</strong>, dropping in pressure and temperature, and returns to the evaporator to absorb more heat.</p>
+      <p>Because the heat is rejected directly to the outside air via the unit's own fans, these are called <strong>air-cooled</strong> chillers — no cooling towers or condenser water loops are required. The 24 ACCs serve the <strong>entire site</strong> — fan walls, building A/C, and all other cooling loads.</p>
+    </div>
+  </div>
+
+  <div class="op-card" onclick="toggleOp('op2')">
+    <div class="op-header">
+      <div class="op-icon" style="background:#e6f1fb;color:#185fa5">💧</div>
+      <div class="op-text"><div class="op-title">Chilled water pump (CHWP)</div><div class="op-sub">Circulates glycol-water mixture from roof to loads</div></div>
+      <div class="op-chevron" id="chev-op2">▼</div>
+    </div>
+    <div class="op-body" id="op2">
+      <p>The CHWPs are centrifugal pumps that create the pressure differential needed to <strong>circulate the chilled glycol-water mixture</strong> from the rooftop chillers down through the building's pipe network to the fan wall coils, building A/C, and all other cooling loads, and then return the warmed fluid back up to the chillers.</p>
+      <p>The fluid they pump is a <strong>27 % glycol / 73 % water blend</strong>. The glycol lowers the freezing point — critical for rooftop piping exposed to cold weather — and inhibits corrosion inside the pipe network.</p>
+      <p>Each pump is paired one-to-one with a chiller — <strong>3 CHWPs per mechanical skid, one per chiller</strong>. If a pump fails, its corresponding chiller's cold fluid cannot reach the building. The pumps run continuously whenever their chiller is active. They are located on the <strong>roof, directly next to the chillers</strong>, minimising the distance between the chiller output and the pump inlet.</p>
+    </div>
+  </div>
+
+  <div class="op-card" onclick="toggleOp('op3')">
+    <div class="op-header">
+      <div class="op-icon" style="background:#e1f5ee;color:#0f6e56">🌀</div>
+      <div class="op-text"><div class="op-title">Fan wall</div><div class="op-sub">Air-to-fluid heat exchange · serves all 36 rows</div></div>
+      <div class="op-chevron" id="chev-op3">▼</div>
+    </div>
+    <div class="op-body" id="op3">
+      <p>A fan wall is a large bank of fans arranged in a flat array — typically a full wall section. The fans draw <strong>warm room air</strong> (returning from the hot aisles) across <strong>coils carrying the chilled glycol-water mixture</strong> — finned tube heat exchangers with the cold fluid flowing through them.</p>
+      <p>As the warm air passes across the coils, heat transfers from the air into the glycol-water. The now-cooled air is pushed into the <strong>open cold aisles</strong> at the front of the server rows. The warmed fluid returns through the piping loop back to the rooftop chillers.</p>
+      <p>There are <strong>21 fan walls</strong> on site. Each is dedicated to its mechanical E-Skid and is not shared across skids. Fan walls are the <strong>primary cooling delivery mechanism</strong> for the data hall — every one of the 36 server rows depends on them.</p>
+    </div>
+  </div>
+
+  <div class="op-card" onclick="toggleOp('op4')">
+    <div class="op-header">
+      <div class="op-icon" style="background:#faece7;color:#993c1d">🔥</div>
+      <div class="op-text"><div class="op-title">Hot aisle containment</div><div class="op-sub">Physical exhaust isolation · all 36 rows</div></div>
+      <div class="op-chevron" id="chev-op4">▼</div>
+    </div>
+    <div class="op-body" id="op4">
+      <p>Hot aisle containment is a <strong>physical enclosure</strong> — panels, doors, and ceiling structures — built around the rear-facing aisles where servers exhaust hot air. The purpose is to completely prevent hot exhaust from mixing back into the cold supply air.</p>
+      <p>Without containment, hot air recirculates: it drifts over rack tops or around the ends of rows and gets pulled back into server intakes. This raises inlet temperatures, forces servers to spin their fans harder, and reduces the cooling system's overall effectiveness. In severe cases it can cause thermal shutdowns.</p>
+      <p>With containment in place, hot exhaust is <strong>captured and directed</strong> back toward the fan walls, where it passes across the chilled glycol-water coils again. The cold aisle stays cold, the hot aisle stays isolated, and the cooling loop operates as efficiently as possible.</p>
+    </div>
+  </div>
+
+  <div class="op-card" onclick="toggleOp('op5')">
+    <div class="op-header">
+      <div class="op-icon" style="background:#eeedfe;color:#534ab7">🧪</div>
+      <div class="op-text"><div class="op-title">Supplemental liquid cooling</div><div class="op-sub">Direct-to-rack cooling · outer 24 rows only</div></div>
+      <div class="op-chevron" id="chev-op5">▼</div>
+    </div>
+    <div class="op-body" id="op5">
+      <p>Modern AI accelerators (GPUs, TPUs) produce significantly more heat per rack than traditional servers — often <strong>10–30× the watts per rack</strong>. Air cooling alone cannot remove heat fast enough at these densities.</p>
+      <p>Supplemental liquid cooling addresses this by circulating a <strong>glycol-water mixture</strong> through heat exchangers mounted directly at or inside the rack. The liquid absorbs heat at the source — right where the hottest components are — and carries it away through piping back into the chilled water system, where the heat is ultimately rejected at the rooftop chillers.</p>
+      <p>A <strong>glycol fill tank</strong> on the south side of the building stores the mixture for top-offs and refills. This supplemental system is present <strong>only on the outer 24 high-density rows</strong>. The inner 12 core scientific network rows have no liquid cooling connections and are air-cooled only.</p>
+    </div>
+  </div>
+
+  <div class="op-card" onclick="toggleOp('op6')">
+    <div class="op-header">
+      <div class="op-icon" style="background:#e6f1fb;color:#185fa5">🏗️</div>
+      <div class="op-text"><div class="op-title">Chilled water tanks</div><div class="op-sub">Thermal buffer &amp; system stabilisation</div></div>
+      <div class="op-chevron" id="chev-op6">▼</div>
+    </div>
+    <div class="op-body" id="op6">
+      <p>Two <strong>chilled water tanks</strong> are located on the south side of the building, to the east of GEN-AD and the glycol fill tank. These tanks serve as <strong>thermal buffer and pressure stabilisation</strong> for the chilled glycol-water loop.</p>
+      <p>They hold a reserve of chilled fluid that smooths out fluctuations — if demand suddenly spikes (for example, a large number of servers ramping up simultaneously), the tanks provide an immediate supply of cold fluid while the chillers adjust their output. They also help maintain stable system pressure across the piping network.</p>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ===================== TAB: DATA HALL ===================== -->
+<div class="tab-panel" id="tab-hall">
+<div class="section">
+  <div class="section-title">Data hall row layout</div>
+
+  <div class="row-diagram" style="margin-bottom:1rem">
+    <div class="row-band" style="background:#eeedfe">
+      <div class="row-count" style="color:#534ab7">12</div>
+      <div class="row-info">
+        <div class="row-label" style="color:#3c3489">Outer rows — left side</div>
+        <div class="row-desc">High-density AI / compute racks</div>
+        <div class="row-pills">
+          <span class="pill" style="background:#dddcf9;color:#534ab7">Air + liquid</span>
+          <span class="pill" style="background:#dddcf9;color:#534ab7">PH skids</span>
+          <span class="pill" style="background:#f1efe8;color:#5f5e5a">No gen backup</span>
+        </div>
+      </div>
+    </div>
+    <div class="row-band" style="background:#faece7">
+      <div class="row-count" style="color:#993c1d">12</div>
+      <div class="row-info">
+        <div class="row-label" style="color:#712b13">Centre rows</div>
+        <div class="row-desc">Core scientific network servers</div>
+        <div class="row-pills">
+          <span class="pill" style="background:#f5d8cf;color:#993c1d">Air only</span>
+          <span class="pill" style="background:#f5d8cf;color:#993c1d">PI skids</span>
+          <span class="pill" style="background:#e1f5ee;color:#0f6e56">Generator backed</span>
+        </div>
+      </div>
+    </div>
+    <div class="row-band" style="background:#eeedfe">
+      <div class="row-count" style="color:#534ab7">12</div>
+      <div class="row-info">
+        <div class="row-label" style="color:#3c3489">Outer rows — right side</div>
+        <div class="row-desc">High-density AI / compute racks</div>
+        <div class="row-pills">
+          <span class="pill" style="background:#dddcf9;color:#534ab7">Air + liquid</span>
+          <span class="pill" style="background:#dddcf9;color:#534ab7">PH skids</span>
+          <span class="pill" style="background:#f1efe8;color:#5f5e5a">No gen backup</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box" style="margin-bottom:1rem">
+    <strong>Cannibalization row.</strong> There is also a smaller, separate row at the front of the data hall that carries no customer load. It serves as a <strong>spare parts reserve</strong> — if a production rack develops a hardware fault, a technician can pull a matching component (GPU, NIC, drive, etc.) from the cannibalization row and swap it in to restore service quickly, without waiting for a vendor shipment.
+  </div>
+
+  <div class="section-title">Rack types &amp; cooling comparison</div>
+  <div class="rack-compare">
+    <div class="rack-card">
+      <div class="rack-header" style="background:#eeedfe;color:#3c3489">🖥️ High-density racks</div>
+      <div class="rack-row"><span class="key">Also called</span><span>AI / compute racks</span></div>
+      <div class="rack-row"><span class="key">Location</span><span>Outer 24 rows (12 per side)</span></div>
+      <div class="rack-row"><span class="key">Air cooling</span><span class="yes">Yes — fan walls</span></div>
+      <div class="rack-row"><span class="key">Liquid cooling</span><span class="yes">Yes — glycol</span></div>
+      <div class="rack-row"><span class="key">Generator backup</span><span class="no">No</span></div>
+      <div class="rack-row"><span class="key">Powered by</span><span>PH E-Skids</span></div>
+    </div>
+    <div class="rack-card">
+      <div class="rack-header" style="background:#faece7;color:#712b13">🔬 Network server racks</div>
+      <div class="rack-row"><span class="key">Also called</span><span>Core scientific network servers</span></div>
+      <div class="rack-row"><span class="key">Location</span><span>Inner 12 rows (centre)</span></div>
+      <div class="rack-row"><span class="key">Air cooling</span><span class="yes">Yes — fan walls</span></div>
+      <div class="rack-row"><span class="key">Liquid cooling</span><span class="no">No</span></div>
+      <div class="rack-row"><span class="key">Generator backup</span><span class="yes">Yes (PI skids)</span></div>
+      <div class="rack-row"><span class="key">Powered by</span><span>PI E-Skids</span></div>
+    </div>
+  </div>
+
+  <div style="margin-top:1rem" class="info-box">
+    <strong>Why do AI racks need liquid cooling?</strong> Modern AI accelerators produce significantly more heat per rack than traditional servers — often 10–30× the watts. Air cooling alone cannot remove heat fast enough at these densities. Supplemental liquid cooling captures heat directly at the source via glycol-water heat exchangers, keeping component temperatures within safe operating limits.
+  </div>
+
+  <div style="margin-top:1.25rem">
+    <div class="section-title">Airflow pattern — all rows</div>
+    <div style="padding:12px 14px;border-radius:10px;border:0.5px solid #e0ddd6;background:#fff;font-size:13px;color:#5f5e5a;line-height:1.7">
+      <strong style="color:#1a1a1a">Cold aisle (front) → open.</strong> Fan walls push chilled air into the front-facing aisles. Cold aisles are not physically enclosed — cool air floods in and servers draw it through their intake grilles.<br><br>
+      <strong style="color:#1a1a1a">Server → front to back.</strong> Every rack pulls cold air in through the front and exhausts hot air out the rear. This consistent airflow direction is why row orientation matters.<br><br>
+      <strong style="color:#1a1a1a">Hot aisle (rear) → contained.</strong> The rear aisles are physically enclosed with panels and ceiling structures. Hot exhaust is captured and directed back toward the fan walls, where it crosses the chilled glycol-water coils and the cycle continues. Without containment, hot air recirculates into cold aisles and cooling effectiveness collapses.
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ===================== TAB: MECHANICAL SKIDS ===================== -->
+<div class="tab-panel" id="tab-skids">
+<div class="section">
+  <div class="section-title">Mechanical E-Skids — MI &amp; MH</div>
+  <div class="info-box" style="margin-bottom:1rem">
+    <strong>Naming convention:</strong> <strong>M</strong> = Mechanical (powers cooling plant). <strong>I</strong> = Critical (generator backed). <strong>H</strong> = Non-critical (no generator backup). Each mechanical skid contains 3 × 250 kVA UPS units (750 kVA total). For how power flows through the skid internally, see the Power Distribution guide.
+  </div>
+
+  <div class="eskid-grid" style="margin-bottom:1rem">
+    <div class="eskid-card">
+      <div class="eskid-header mi-h">
+        <div class="eskid-code mi-code">MI</div>
+        <div class="eskid-meta"><div class="eskid-name">Critical mechanical</div><div class="eskid-type">Generator backed</div></div>
+      </div>
+      <div class="eskid-body">
+        Each MI skid owns and powers:<br>
+        <strong>3 ACCs</strong> (rooftop) — 9 critical chillers total<br>
+        <strong>3 CHWPs</strong> (rooftop, next to ACCs) — one per chiller<br>
+        <strong>Dedicated fan walls</strong> (data hall)<br><br>
+        During a utility outage, MI generators start and keep critical cooling running so the PI-backed network server racks stay within thermal limits.
+        <div class="count-row"><span class="chip mi-chip">3 skids</span><span class="chip mi-chip">3 generators</span><span class="chip mi-chip">9 ACCs</span></div>
+      </div>
+    </div>
+    <div class="eskid-card">
+      <div class="eskid-header mh-h">
+        <div class="eskid-code mh-code">MH</div>
+        <div class="eskid-meta"><div class="eskid-name">Non-critical mechanical</div><div class="eskid-type">No generator backup</div></div>
+      </div>
+      <div class="eskid-body">
+        Each MH skid owns and powers the same equipment types:<br>
+        <strong>3 ACCs</strong> (rooftop) — 15 non-critical chillers total<br>
+        <strong>3 CHWPs</strong> (rooftop, next to ACCs) — one per chiller<br>
+        <strong>Dedicated fan walls</strong> (data hall)<br><br>
+        No generator backup. During a utility outage, non-critical cooling drops once UPS batteries are exhausted.
+        <div class="count-row"><span class="chip mh-chip">5 skids</span><span class="chip mh-chip">15 ACCs</span><span class="chip mh-chip">No gen backup</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Each mechanical skid owns</div>
+  <table class="ref-table">
+    <thead><tr><th>Equipment</th><th>Per skid</th><th>Location</th><th>Role in cooling loop</th></tr></thead>
+    <tbody>
+      <tr><td><strong>ACCs</strong></td><td>3</td><td>Roof</td><td>Chill glycol-water &amp; reject heat to outside air</td></tr>
+      <tr><td><strong>CHWPs</strong></td><td>3</td><td>Roof (next to ACCs)</td><td>Pump chilled glycol-water from roof into building</td></tr>
+      <tr><td><strong>Fan walls</strong></td><td>Dedicated</td><td>Data hall</td><td>Cool air across glycol-water coils → cold aisles</td></tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top:1rem" class="info-box">
+    <strong>Why does critical cooling matter?</strong> During a utility outage, the PI skids keep the critical network server racks powered — but those servers still generate heat. Without cooling, rack inlet temperatures rise rapidly. The MI skids and their generators exist specifically to ensure the chillers, pumps, and fan walls continue operating so the generator-backed IT racks don't overheat and shut down thermally.
+  </div>
+</div>
+</div>
+
+<!-- ===================== TAB: SITE LAYOUT ===================== -->
+<div class="tab-panel" id="tab-layout">
+<div class="section">
+  <div class="section-title">Where cooling infrastructure is located</div>
+  <div class="loc-grid">
+
+    <div class="loc-card">
+      <div class="loc-header" style="background:#e6f1fb">
+        <span style="color:#0c447c">❄️ Roof — ACCs &amp; CHWPs</span>
+      </div>
+      <div class="loc-body">
+        <strong>24 air-cooled chillers</strong> — 9 critical (MI), 15 non-critical (MH). Each mechanical E-Skid owns 3. The chillers reject heat to the outside air via built-in fans and supply cooling for the <strong>entire site</strong> — fan walls, building A/C, and all other loads.<br><br>
+        <strong>24 CHWPs</strong> sit directly next to the chillers on the roof. One pump per chiller. They circulate the <strong>27 % glycol / 73 % water mixture</strong> from the chillers down into the building's piping distribution.
+      </div>
+    </div>
+
+    <div class="loc-card">
+      <div class="loc-header" style="background:#eaf3de">
+        <span style="color:#27500a">🌀 Data hall floor — fan walls &amp; containment</span>
+      </div>
+      <div class="loc-body">
+        <strong>21 fan walls</strong> supply cooled air into open cold aisles across all 36 server rows. <strong>Hot aisle containment</strong> encloses all rear aisles. The outer 24 high-density rows also have <strong>supplemental liquid cooling connections</strong> at the rack level.
+      </div>
+    </div>
+
+    <div class="loc-card">
+      <div class="loc-header" style="background:#eeedfe">
+        <span style="color:#3c3489">🧪 South side — glycol fill tank</span>
+      </div>
+      <div class="loc-body">
+        Storage tank for the <strong>glycol-water mixture</strong> used across the cooling system. Located on the south side next to GEN-AD (the house load generator). Used to top off or refill the cooling loop as needed.
+      </div>
+    </div>
+
+    <div class="loc-card">
+      <div class="loc-header" style="background:#e6f1fb">
+        <span style="color:#0c447c">🏗️ South side — chilled water tanks</span>
+      </div>
+      <div class="loc-body">
+        <strong>2 chilled water tanks</strong> — thermal buffer and pressure stabilisation for the chilled glycol-water system. Located to the east of GEN-AD and the glycol fill tank on the south side.
+      </div>
+    </div>
+
+    <div class="loc-card">
+      <div class="loc-header" style="background:#faece7">
+        <span style="color:#712b13">⚡ North side — mechanical E-Skids</span>
+      </div>
+      <div class="loc-body">
+        All <strong>8 mechanical E-Skids</strong> (3 MI + 5 MH) and their <strong>3 MI generators</strong> are on the north side, alongside the electrical skids. Each skid has its own dedicated transformer. For full details on the power path, see the Power Distribution guide.
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- ===================== TAB: REFERENCE ===================== -->
+<div class="tab-panel" id="tab-ref">
+<div class="section">
+  <div class="section-title">Quick reference</div>
+  <table class="ref-table">
+    <thead><tr><th>#</th><th>Component</th><th>Count / detail</th><th>Function</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Air-cooled chillers (ACC)</td><td><span class="pill" style="background:#e6f1fb;color:#185fa5">24 · roof</span></td><td>Chill glycol-water via refrigerant cycle; reject heat to outside air; supply entire site</td></tr>
+      <tr><td>2</td><td>Chilled water pumps (CHWP)</td><td><span class="pill" style="background:#e6f1fb;color:#185fa5">24 · roof</span></td><td>Circulate 27/73 glycol-water from roof to all cooling loads</td></tr>
+      <tr><td>3</td><td>Glycol-water mixture</td><td><span class="pill" style="background:#eeedfe;color:#534ab7">27 % / 73 %</span></td><td>Loop fluid — lowers freezing point, inhibits corrosion</td></tr>
+      <tr><td>4</td><td>Fan walls</td><td><span class="pill" style="background:#e1f5ee;color:#0f6e56">21 · data hall</span></td><td>Draw air across glycol-water coils; push cooled air to cold aisles</td></tr>
+      <tr><td>5</td><td>Open cold aisles</td><td><span class="pill" style="background:#e1f5ee;color:#0f6e56">All 36 rows</span></td><td>Unenclosed front aisles; fan wall air floods in for server intake</td></tr>
+      <tr><td>6</td><td>Hot aisle containment</td><td><span class="pill" style="background:#faece7;color:#993c1d">All 36 rows</span></td><td>Physical enclosure around rear aisles; prevents hot/cold mixing</td></tr>
+      <tr><td>7</td><td>Supplemental liquid cooling</td><td><span class="pill" style="background:#eeedfe;color:#534ab7">Outer 24 rows</span></td><td>Rack-level glycol-water heat exchangers for high-density AI racks</td></tr>
+      <tr><td>8</td><td>Glycol fill tank</td><td><span class="pill" style="background:#eeedfe;color:#534ab7">1 · south side</span></td><td>Storage for glycol-water mixture; refills cooling loop</td></tr>
+      <tr><td>9</td><td>Chilled water tanks</td><td><span class="pill" style="background:#e6f1fb;color:#185fa5">2 · south side</span></td><td>Thermal buffer &amp; pressure stabilisation for glycol-water loop</td></tr>
+      <tr><td>10</td><td>MI skids</td><td><span class="pill" style="background:#e6f1fb;color:#0c447c">3 · gen backed</span></td><td>Power critical cooling: 9 ACCs, 9 CHWPs (roof), fan walls</td></tr>
+      <tr><td>11</td><td>MH skids</td><td><span class="pill" style="background:#f1efe8;color:#5f5e5a">5 · no gen</span></td><td>Power non-critical cooling: 15 ACCs, 15 CHWPs (roof), fan walls</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="divider"></div>
+
+<div class="section">
+  <div class="section-title">Key terms</div>
+  <div class="glossary">
+    <div class="gcard"><div class="term">ACC (Air-cooled chiller)</div><div class="def">Rooftop refrigeration unit. Uses a refrigerant cycle (evaporator → compressor → condenser → expansion valve) to chill the glycol-water mixture and reject heat to outside air via built-in fans. 24 on site, 3 per mechanical skid. Supplies cooling for the entire site — fan walls, building A/C, and all other loads.</div></div>
+    <div class="gcard"><div class="term">CHWP</div><div class="def">Chilled water pump. Centrifugal pump on the roof, next to the chillers. One per chiller. Circulates the 27/73 glycol-water mixture from the roof down to fan wall coils, building A/C, and all other cooling loads. 24 on site.</div></div>
+    <div class="gcard"><div class="term">Glycol-water mixture</div><div class="def">The fluid in the chilled water loop: 27 % glycol to 73 % water. Glycol lowers the freezing point (protecting rooftop piping in cold weather) and inhibits corrosion inside the pipe network. This is what flows through the entire chilled water system.</div></div>
+    <div class="gcard"><div class="term">Fan wall</div><div class="def">Large fan array that draws warm room air across chilled glycol-water coils and pushes cooled air into open cold aisles. Primary cooling delivery for all 36 server rows. 21 on site, dedicated per mechanical skid.</div></div>
+    <div class="gcard"><div class="term">Cold aisle (open)</div><div class="def">Front-facing aisle between rack rows. Not physically enclosed. Fan walls supply chilled air here; servers draw it in through front intake grilles.</div></div>
+    <div class="gcard"><div class="term">Hot aisle containment</div><div class="def">Physical enclosure (panels, doors, ceiling structures) around rear-facing aisles. Captures hot server exhaust and prevents it from mixing with cold supply air. Present on all 36 rows.</div></div>
+    <div class="gcard"><div class="term">Supplemental liquid cooling</div><div class="def">Direct-to-rack cooling using glycol-water circulated through rack-mounted heat exchangers. Captures heat at the source. Outer 24 high-density rows only; inner 12 network rows are air-cooled only.</div></div>
+    <div class="gcard"><div class="term">Glycol fill tank</div><div class="def">Storage tank on the south side (next to GEN-AD) holding glycol-water mixture for topping off or refilling the cooling loop.</div></div>
+    <div class="gcard"><div class="term">Chilled water tanks</div><div class="def">Two thermal buffer/pressure stabilisation tanks on the south side. Smooth out fluctuations in cooling demand and maintain stable system pressure in the glycol-water loop.</div></div>
+    <div class="gcard"><div class="term">MI skid</div><div class="def">Critical mechanical E-Skid. Generator backed. Each owns 3 rooftop ACCs, 3 rooftop CHWPs, and dedicated fan walls. 3 on site.</div></div>
+    <div class="gcard"><div class="term">MH skid</div><div class="def">Non-critical mechanical E-Skid. No generator backup. Same equipment responsibilities as MI. 5 on site.</div></div>
+    <div class="gcard"><div class="term">Refrigerant cycle</div><div class="def">The four-stage loop inside a chiller: evaporator (absorbs heat, liquid → gas) → compressor (raises pressure/temp) → condenser (rejects heat, gas → liquid) → expansion valve (drops pressure/temp) → repeat.</div></div>
+    <div class="gcard"><div class="term">Cannibalization row</div><div class="def">A smaller row at the front of the data hall with no customer load. Reserve of spare components (GPUs, NICs, drives, etc.) for fast swap into a faulted production rack.</div></div>
+    <div class="gcard"><div class="term">Core scientific network servers</div><div class="def">The client's critical network servers in the inner 12 centre rows. Air-cooled only (no liquid cooling). Generator backed via PI E-Skids.</div></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+<div class="section" style="padding-bottom:0">
+  <div class="tip-box">
+    <strong>Study tip — trace the cooling loop:</strong> Rooftop ACCs chill the 27/73 glycol-water mix → rooftop CHWPs pump it down into the building → fan walls cool air across coils → open cold aisles deliver air to rack fronts → servers exhaust hot air rear → hot aisle containment captures it → warm glycol-water returns to roof → cycle repeats. Then add: the same chillers also supply building A/C and all other site cooling. Outer 24 rows get supplemental liquid cooling at the rack; inner 12 are air only. MI keeps critical cooling on generator; MH drops during outage.
+  </div>
+</div>
+</div>
+
+<script>
+let openF=null;
+function tog(id){
+  const p=document.getElementById(id);
+  const sc=document.getElementById('sc-'+id);
+  const c=sc||p.previousElementSibling;
+  if(openF===id){
+    p.classList.remove('open');if(c)c.classList.remove('active');openF=null;
+  } else {
+    if(openF){
+      const op=document.getElementById(openF);
+      op.classList.remove('open');
+      const osc=document.getElementById('sc-'+openF);
+      const oc=osc||op.previousElementSibling;
+      if(oc)oc.classList.remove('active');
+    }
+    p.classList.add('open');if(c)c.classList.add('active');openF=id;
+  }
+}
+let openOp=null;
+function toggleOp(id){
+  const body=document.getElementById(id);
+  const chev=document.getElementById('chev-'+id);
+  if(openOp===id){body.classList.remove('open');chev.classList.remove('open');openOp=null;}
+  else{
+    if(openOp){document.getElementById(openOp).classList.remove('open');document.getElementById('chev-'+openOp).classList.remove('open');}
+    body.classList.add('open');chev.classList.add('open');openOp=id;
+  }
+}
+function switchTab(name){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>

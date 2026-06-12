@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;font-size:15px;line-height:1.6;color:var(--color-text-primary,#1a1a1a);background:transparent;padding:0 0 2rem}
+.hero{padding:2rem 1.5rem 1rem;border-bottom:0.5px solid var(--color-border-tertiary,#e0ddd6)}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;background:#e6f1fb;color:#185fa5;margin-bottom:.75rem;letter-spacing:.04em;text-transform:uppercase}
+.hero h1{font-size:22px;font-weight:500;margin-bottom:.25rem}
+.hero p{font-size:14px;color:#5f5e5a}
+.section{padding:1.25rem 1.5rem}
+.section-title{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:1rem}
+.divider{height:0.5px;background:#e0ddd6;margin:0 1.5rem}
+.tip-box{margin:0 1.5rem;padding:12px 14px;border-left:3px solid #1D9E75;background:#f5f4ef;font-size:13px;color:#5f5e5a}
+.tip-box strong{color:#1a1a1a;font-weight:500}
+.info-box{padding:12px 14px;border-radius:10px;border:0.5px solid #e0ddd6;background:#f5f4ef;font-size:13px;color:#5f5e5a;line-height:1.6}
+.info-box strong{color:#1a1a1a;font-weight:500}
+
+.overview-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
+.ocard{padding:12px 14px;border-radius:10px;border:0.5px solid #e0ddd6;background:#fff}
+.ocard .onum{font-size:24px;font-weight:600;line-height:1}
+.ocard .olabel{font-size:12px;color:#888;margin-top:3px}
+.ocard .osub{font-size:11px;color:#aaa;margin-top:2px}
+
+.tree{font-size:13px;line-height:1.7;padding:2px 0}
+.tree-row{display:flex;align-items:baseline;gap:6px;padding:2px 0}
+.tree-row .indent{flex-shrink:0;color:#ccc;width:16px;text-align:center}
+.tree-pill{display:inline-block;font-size:11px;font-weight:500;padding:1px 8px;border-radius:10px;margin-left:4px}
+.tp-blue{background:#e6f1fb;color:#185fa5}
+.tp-teal{background:#e1f5ee;color:#0f6e56}
+.tp-amber{background:#faeeda;color:#854f0b}
+.tp-coral{background:#faece7;color:#993c1d}
+.tp-purple{background:#eeedfe;color:#534ab7}
+.tp-green{background:#eaf3de;color:#3b6d11}
+.tp-gray{background:#f1efe8;color:#5f5e5a}
+
+.ups-compare{width:100%;border-collapse:collapse;font-size:13px;margin-top:.5rem}
+.ups-compare th{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:#888;padding:6px 10px;border-bottom:0.5px solid #e0ddd6;text-align:left}
+.ups-compare td{padding:9px 10px;border-bottom:0.5px solid #e0ddd6;vertical-align:top}
+.ups-compare tr:last-child td{border-bottom:none}
+
+.flow{display:flex;flex-direction:column;align-items:center;gap:0}
+.stage{width:100%;max-width:480px;position:relative}
+.stage-card{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;border:0.5px solid #e0ddd6;background:#fff;cursor:pointer;transition:border-color .15s,background .15s}
+.stage-card:hover{border-color:#c5c3bb;background:#f5f4ef}
+.stage-card.active{border-radius:10px 10px 0 0;border-bottom-color:transparent}
+.stage-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.stage-text{flex:1;min-width:0}
+.stage-label{font-size:14px;font-weight:500}
+.stage-sub{font-size:12px;color:#888;margin-top:1px}
+.stage-volt{font-size:11px;font-weight:500;padding:2px 8px;border-radius:12px;flex-shrink:0;white-space:nowrap}
+.s-purple .stage-icon{background:#eeedfe;color:#534ab7} .s-purple .stage-volt{background:#eeedfe;color:#534ab7}
+.s-teal .stage-icon{background:#e1f5ee;color:#0f6e56} .s-teal .stage-volt{background:#e1f5ee;color:#0f6e56}
+.s-blue .stage-icon{background:#e6f1fb;color:#185fa5} .s-blue .stage-volt{background:#e6f1fb;color:#185fa5}
+.s-amber .stage-icon{background:#faeeda;color:#854f0b} .s-amber .stage-volt{background:#faeeda;color:#854f0b}
+.s-coral .stage-icon{background:#faece7;color:#993c1d} .s-coral .stage-volt{background:#faece7;color:#993c1d}
+.s-green .stage-icon{background:#eaf3de;color:#3b6d11} .s-green .stage-volt{background:#eaf3de;color:#3b6d11}
+.arrow-wrap{display:flex;align-items:center;justify-content:center;height:28px;width:100%;max-width:480px;position:relative}
+.arrow-line{width:1px;height:100%;background:#c5c3bb;position:absolute;left:50%}
+.arrow-head{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid #c5c3bb}
+.bypass-wrap{display:flex;align-items:flex-start;width:100%;max-width:480px;gap:8px;margin:6px 0}
+.bypass-card{flex:2;padding:9px 12px;border-radius:8px;border:0.5px dashed #c5c3bb;background:#f5f4ef}
+.bypass-label{font-size:12px;font-weight:500;color:#5f5e5a}
+.bypass-desc{font-size:12px;color:#888;margin-top:2px}
+.detail-panel{max-height:0;overflow:hidden;transition:max-height .35s ease,opacity .3s;opacity:0;width:100%;max-width:480px}
+.detail-panel.open{max-height:300px;opacity:1}
+.detail-inner{padding:10px 14px 12px;border:0.5px solid #e0ddd6;border-top:none;border-radius:0 0 10px 10px;background:#f5f4ef;font-size:13px;color:#5f5e5a;line-height:1.6}
+.detail-inner strong{color:#1a1a1a;font-weight:500}
+
+.split-wrap{display:flex;gap:10px;width:100%;max-width:480px;margin:2px 0}
+.split-branch{flex:1;display:flex;flex-direction:column;align-items:center;gap:0}
+.split-card{width:100%;padding:10px 12px;border-radius:10px;border:0.5px solid #e0ddd6;background:#fff;cursor:pointer;transition:border-color .15s,background .15s;text-align:center}
+.split-card:hover{border-color:#c5c3bb;background:#f5f4ef}
+.split-card.active{border-radius:10px 10px 0 0;border-bottom-color:transparent}
+.split-label{font-size:13px;font-weight:500}
+.split-sub{font-size:11px;color:#888;margin-top:2px}
+.split-tag{display:inline-block;font-size:10px;font-weight:500;padding:2px 7px;border-radius:10px;margin-top:4px}
+.split-detail{max-height:0;overflow:hidden;transition:max-height .35s ease,opacity .3s;opacity:0;width:100%}
+.split-detail.open{max-height:280px;opacity:1}
+.split-detail .detail-inner{border-radius:0 0 10px 10px}
+
+.ref-table{width:100%;border-collapse:collapse;font-size:13px}
+.ref-table th{font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#888;padding:6px 10px;border-bottom:0.5px solid #e0ddd6;text-align:left}
+.ref-table td{padding:9px 10px;border-bottom:0.5px solid #e0ddd6;vertical-align:top}
+.ref-table tr:last-child td{border-bottom:none}
+.ref-table tr:hover td{background:#f5f4ef}
+.pill{display:inline-block;font-size:11px;padding:2px 7px;border-radius:10px;font-weight:500}
+.yes{color:#0f6e56;font-weight:500} .no{color:#993c1d;font-weight:500}
+
+.glossary{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.gcard{padding:12px 14px;border-radius:10px;border:0.5px solid #e0ddd6;background:#fff}
+.gcard .term{font-size:13px;font-weight:500;margin-bottom:4px}
+.gcard .def{font-size:12px;color:#888;line-height:1.5}
+
+.op-card{border:0.5px solid #e0ddd6;border-radius:10px;background:#fff;margin-bottom:10px;overflow:hidden}
+.op-header{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;user-select:none}
+.op-header:hover{background:#f5f4ef}
+.op-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.op-text{flex:1}
+.op-title{font-size:14px;font-weight:500}
+.op-sub{font-size:12px;color:#888;margin-top:1px}
+.op-chevron{font-size:11px;color:#aaa;transition:transform .25s;flex-shrink:0}
+.op-chevron.open{transform:rotate(180deg)}
+.op-body{max-height:0;overflow:hidden;transition:max-height .35s ease,opacity .3s;opacity:0}
+.op-body.open{max-height:600px;opacity:1}
+.op-body p{font-size:13px;color:#5f5e5a;line-height:1.7;padding:0 14px 12px}
+.op-body p+p{padding-top:0}
+.op-body strong{color:#1a1a1a;font-weight:500}
+
+.tab-nav{display:flex;gap:4px;padding:1rem 1.5rem 0;border-bottom:0.5px solid #e0ddd6;overflow-x:auto}
+.tab-btn{font-size:13px;font-weight:500;padding:7px 14px;border-radius:8px 8px 0 0;border:0.5px solid transparent;background:transparent;cursor:pointer;color:#888;margin-bottom:-0.5px;border-bottom:2px solid transparent;white-space:nowrap}
+.tab-btn.active{background:#fff;color:#1a1a1a;border-color:#e0ddd6;border-bottom-color:#fff}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+.gen-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.gen-card{border-radius:10px;border:0.5px solid #e0ddd6;padding:12px 14px}
+.gen-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.gen-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.gen-label{font-size:13px;font-weight:500}
+.gen-count{font-size:22px;font-weight:500;line-height:1}
+.gen-unit{font-size:12px;color:#888;margin-top:2px}
+.gen-serves{font-size:12px;color:#888;margin-top:6px;border-top:0.5px solid #e0ddd6;padding-top:6px}
+
+.eskid-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.eskid-card{border-radius:10px;border:0.5px solid #e0ddd6;overflow:hidden}
+.eskid-header{padding:10px 14px 8px;display:flex;align-items:center;gap:10px}
+.eskid-code{font-size:18px;font-weight:500;font-family:monospace}
+.eskid-meta{flex:1}
+.eskid-name{font-size:13px;font-weight:500}
+.eskid-type{font-size:12px;color:#888}
+.eskid-body{padding:8px 14px 12px;font-size:12px;color:#5f5e5a;line-height:1.6;border-top:0.5px solid #e0ddd6}
+.eskid-body strong{color:#1a1a1a;font-weight:500}
+.count-row{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap}
+.chip{font-size:11px;font-weight:500;padding:2px 8px;border-radius:10px}
+.mi-h{background:#e6f1fb} .mi-code{color:#185fa5} .mi-chip{background:#e6f1fb;color:#0c447c}
+.mh-h{background:#f5f4ef} .mh-code{color:#5f5e5a} .mh-chip{background:#f1efe8;color:#444441}
+.pi-h{background:#faece7} .pi-code{color:#993c1d} .pi-chip{background:#faece7;color:#712b13}
+.ph-h{background:#f5f4ef} .ph-code{color:#5f5e5a} .ph-chip{background:#f1efe8;color:#444441}
+
+.loc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.loc-card{border-radius:10px;border:0.5px solid #e0ddd6;overflow:hidden}
+.loc-header{padding:9px 14px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px}
+.loc-body{padding:8px 14px 12px;font-size:12px;color:#5f5e5a;line-height:1.6;border-top:0.5px solid #e0ddd6}
+.loc-body strong{color:#1a1a1a;font-weight:500}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="badge">New Hire Study Guide</div>
+  <h1>Power distribution</h1>
+  <p>Data Center Facility Operator &amp; Technician — tap any stage to expand</p>
+</div>
+
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+  <button class="tab-btn" onclick="switchTab('flow')">Power flow</button>
+  <button class="tab-btn" onclick="switchTab('skids')">E-Skid types</button>
+  <button class="tab-btn" onclick="switchTab('generators')">Generators</button>
+  <button class="tab-btn" onclick="switchTab('operation')">How it works</button>
+  <button class="tab-btn" onclick="switchTab('layout')">Site layout</button>
+  <button class="tab-btn" onclick="switchTab('ref')">Reference</button>
+</div>
+
+<!-- ===================== TAB: OVERVIEW ===================== -->
+<div class="tab-panel active" id="tab-overview">
+<div class="section">
+  <div class="section-title">Site at a glance</div>
+  <div class="overview-grid">
+    <div class="ocard"><div class="onum" style="color:#534ab7">25</div><div class="olabel">Transformers</div><div class="osub">24 feed E-Skids · 1 feeds house load</div></div>
+    <div class="ocard"><div class="onum" style="color:#185fa5">24</div><div class="olabel">E-Skids</div><div class="osub">16 electrical · 8 mechanical</div></div>
+    <div class="ocard"><div class="onum" style="color:#854f0b">57</div><div class="olabel">UPS units</div><div class="osub">32 elec · 24 mech · 1 house</div></div>
+    <div class="ocard"><div class="onum" style="color:#0f6e56">156</div><div class="olabel">RPPs</div><div class="osub">Electrical skids only</div></div>
+    <div class="ocard"><div class="onum" style="color:#993c1d">8</div><div class="olabel">Generators</div><div class="osub">3 MI · 4 PI · 1 house</div></div>
+    <div class="ocard"><div class="onum" style="color:#534ab7">25 kV</div><div class="olabel">Utility voltage</div><div class="osub">415 V at skids · 480 V at house</div></div>
+  </div>
+
+  <div class="section-title">What this guide covers</div>
+  <div class="info-box" style="margin-bottom:1rem">
+    This guide covers how power enters the site from the utility grid, how it is transformed and conditioned, and how it reaches every load on site — from the IT racks in the data hall to the mechanical cooling plant on the roof, to the office and building services inside the main building. The cooling infrastructure guide (separate document) covers what happens after power reaches the mechanical equipment.
+  </div>
+
+  <div class="section-title">Skid breakdown</div>
+  <div style="padding:12px 14px;border-radius:10px;border:0.5px solid #e0ddd6;background:#fff;margin-bottom:1rem">
+    <div class="tree">
+      <div class="tree-row"><span class="indent">·</span><span><strong>24 E-Skids</strong> — each fed by its own dedicated transformer</span></div>
+      <div class="tree-row"><span class="indent">├</span><span><strong>16 Electrical skids</strong> — power IT racks via RPPs</span><span class="tree-pill tp-blue">2 × UPS @ 1,250 kVA</span></div>
+      <div class="tree-row"><span class="indent" style="width:32px">│ ├</span><span>4 Critical electrical (PI)</span><span class="tree-pill tp-coral">Generator backed</span></div>
+      <div class="tree-row"><span class="indent" style="width:32px">│ └</span><span>12 Non-critical electrical (PH)</span><span class="tree-pill tp-gray">No gen backup</span></div>
+      <div class="tree-row" style="margin-top:4px"><span class="indent">└</span><span><strong>8 Mechanical skids</strong> — power cooling plant</span><span class="tree-pill tp-teal">3 × UPS @ 250 kVA</span></div>
+      <div class="tree-row"><span class="indent" style="width:32px">  ├</span><span>3 Critical mechanical (MI)</span><span class="tree-pill tp-coral">Generator backed</span></div>
+      <div class="tree-row"><span class="indent" style="width:32px">  └</span><span>5 Non-critical mechanical (MH)</span><span class="tree-pill tp-gray">No gen backup</span></div>
+    </div>
+  </div>
+
+  <div class="section-title">UPS configuration by skid type</div>
+  <table class="ups-compare">
+    <thead><tr><th>Skid type</th><th>UPS units</th><th>Per-unit</th><th>Total / skid</th><th>Feeds</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="tree-pill tp-blue">Electrical</span></td>
+        <td>2</td><td>1,250 kVA</td><td><strong>2,500 kVA</strong></td>
+        <td>Switchboard → RPPs → IT racks</td>
+      </tr>
+      <tr>
+        <td><span class="tree-pill tp-teal">Mechanical</span></td>
+        <td>3</td><td>250 kVA</td><td><strong>750 kVA</strong></td>
+        <td>Chillers, chilled water pumps, fan walls</td>
+      </tr>
+      <tr>
+        <td><span class="tree-pill tp-purple">House / admin</span></td>
+        <td>1</td><td>—</td><td>—</td>
+        <td>Office, lighting, BMS, building services</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top:1rem;padding:12px 14px;border-radius:10px;border:0.5px solid #e0ddd6;background:#fff;font-size:13px;color:#5f5e5a;line-height:1.6">
+    <strong style="color:#1a1a1a">25th transformer — house / admin load.</strong> This transformer does not feed an E-Skid. It steps 25 kV down to <strong>480 V</strong> (not 415 V like the skid transformers) and supplies the main building directly. The admin UPS and electrical infrastructure are housed in a <strong>dedicated electrical room on the west side</strong> of the building. House loads include office lighting, HVAC, access control, fire systems, and BMS. The admin UPS is the 57th unit on site. The house load has its own dedicated generator (GEN-AD), located on the south side near the loading dock.
+  </div>
+</div>
+</div>
+
+<!-- ===================== TAB: POWER FLOW ===================== -->
+<div class="tab-panel" id="tab-flow">
+<div class="section">
+  <div class="section-title">Power flow — utility to load (tap each stage)</div>
+  <div class="flow">
+
+    <div class="stage">
+      <div class="stage-card s-purple" onclick="toggle('f1')">
+        <div class="stage-icon">⚡</div>
+        <div class="stage-text"><div class="stage-label">Power poles — utility grid</div><div class="stage-sub">25 utility feeds into the site</div></div>
+        <span class="stage-volt s-purple">25 kV</span>
+      </div>
+      <div class="detail-panel" id="f1"><div class="detail-inner">
+        High-voltage AC arrives at the site from the utility grid via overhead power poles at <strong>25 kilovolts (kV)</strong>. There are <strong>25 utility feeds</strong> — 24 serving E-Skids and 1 feeding the house/admin load inside the main building. Each feed is independent: one transformer per feed.
+      </div></div>
+    </div>
+    <div class="arrow-wrap"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+
+    <div class="stage">
+      <div class="stage-card s-teal" onclick="toggle('f2')">
+        <div class="stage-icon">🔌</div>
+        <div class="stage-text"><div class="stage-label">Transformer (×25)</div><div class="stage-sub">Step-down: 25 kV → 415 V (skids) / 480 V (house)</div></div>
+        <span class="stage-volt s-teal">415 / 480 V</span>
+      </div>
+      <div class="detail-panel" id="f2"><div class="detail-inner">
+        Each transformer steps down 25 kV using electromagnetic induction — no direct electrical connection between input and output. The <strong>24 skid transformers</strong> step down to <strong>415 V</strong>. The <strong>25th transformer</strong> (house load) steps down to <strong>480 V</strong> and feeds a dedicated electrical room on the west side of the main building rather than an external skid.
+      </div></div>
+    </div>
+    <div class="arrow-wrap"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+
+    <div class="stage">
+      <div class="stage-card s-blue" onclick="toggle('f3')">
+        <div class="stage-icon">🖥️</div>
+        <div class="stage-text"><div class="stage-label">E-Skid (×24)</div><div class="stage-sub">Self-contained power conditioning unit</div></div>
+        <span class="stage-volt s-blue">415 V</span>
+      </div>
+      <div class="detail-panel" id="f3"><div class="detail-inner">
+        Each E-Skid is a <strong>modular, skid-mounted assembly</strong> housing its own switchboard, UPS units, and output distribution. There are <strong>16 electrical skids</strong> (PI and PH) feeding IT racks and <strong>8 mechanical skids</strong> (MI and MH) feeding cooling plant. Every skid has a dedicated transformer — nothing is shared between skids.
+      </div></div>
+    </div>
+    <div class="arrow-wrap"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+
+    <div class="stage">
+      <div class="stage-card s-blue" onclick="toggle('f4')">
+        <div class="stage-icon">⬛</div>
+        <div class="stage-text"><div class="stage-label">Switchboard (SWBD)</div><div class="stage-sub">Distribution &amp; bypass point</div></div>
+        <span class="stage-volt s-blue">415 V</span>
+      </div>
+      <div class="detail-panel" id="f4"><div class="detail-inner">
+        The switchboard distributes <strong>415 V</strong> from the transformer to the UPS inputs within the skid. It uses <strong>busbars</strong> (thick copper bars) to carry the full current, with individual breakers tapping off to each UPS. It is also the tie point for the <strong>ERMS maintenance bypass</strong> — an alternate path that keeps the load energised if the UPS needs to be taken offline. Electrical skids feed <strong>2 UPS inputs</strong>; mechanical skids feed <strong>3</strong>.
+      </div></div>
+    </div>
+
+    <div class="bypass-wrap">
+      <div style="width:36px;flex-shrink:0"></div>
+      <div style="display:flex;align-items:center;gap:8px;flex:1;padding:0 14px">
+        <div style="flex:1;height:1px;border-top:1px dashed #c5c3bb"></div>
+        <div class="bypass-card">
+          <div class="bypass-label">⚙️ Maintenance bypass (ERMS)</div>
+          <div class="bypass-desc">Manual alternate path around the UPS. Keeps the load energised during planned maintenance. No conditioning or battery backup while active.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-card s-amber" onclick="toggle('f5')">
+        <div class="stage-icon">🔋</div>
+        <div class="stage-text"><div class="stage-label">UPS (double-conversion)</div><div class="stage-sub">Elec: 2 × 1,250 kVA · Mech: 3 × 250 kVA</div></div>
+        <span class="stage-volt s-amber">415 V</span>
+      </div>
+      <div class="detail-panel" id="f5"><div class="detail-inner">
+        Every UPS on site is a <strong>double-conversion</strong> system: incoming AC is converted to DC (rectifier), then back to AC (inverter). The battery bank sits on the internal DC bus between these two stages. During normal operation, the rectifier powers the DC bus and keeps batteries charged. If AC input fails, batteries take over the DC bus instantly — the inverter keeps running and the load sees no interruption.
+      </div></div>
+    </div>
+
+    <div class="bypass-wrap">
+      <div style="width:36px;flex-shrink:0"></div>
+      <div style="display:flex;align-items:center;gap:8px;flex:1;padding:0 14px">
+        <div style="flex:1;height:1px;border-top:1px dashed #c5c3bb"></div>
+        <div class="bypass-card">
+          <div class="bypass-label">💾 DC bus + battery bank</div>
+          <div class="bypass-desc">Internal DC link connecting rectifier, batteries, and inverter. Batteries float here and take over instantly if AC input fails.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-card s-amber" onclick="toggle('f6')">
+        <div class="stage-icon">🔄</div>
+        <div class="stage-text"><div class="stage-label">Static bypass</div><div class="stage-sub">Automatic fault transfer — internal to UPS</div></div>
+        <span class="stage-volt s-amber" style="background:transparent;border:0.5px dashed #c5c3bb">internal</span>
+      </div>
+      <div class="detail-panel" id="f6"><div class="detail-inner">
+        A solid-state switch inside each UPS that monitors inverter output. If the inverter fails or goes out of tolerance, it <strong>transfers the load to the raw utility feed in under 1 ms</strong> — fast enough that connected equipment never notices. This is fully automatic and requires no operator action. It is completely separate from the ERMS maintenance bypass, which is manual and planned.
+      </div></div>
+    </div>
+    <div class="arrow-wrap"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+
+    <div class="stage">
+      <div class="stage-card s-coral" onclick="toggle('f7')">
+        <div class="stage-icon">📶</div>
+        <div class="stage-text"><div class="stage-label">Inverter output</div><div class="stage-sub">Clean, regulated 415 V AC</div></div>
+        <span class="stage-volt s-coral">415 V AC</span>
+      </div>
+      <div class="detail-panel" id="f7"><div class="detail-inner">
+        The inverter synthesises <strong>clean, regulated 415 V AC</strong> from the DC bus. Because the output waveform is generated internally rather than passed through from the utility, the load is fully isolated from upstream disturbances — voltage sags, surges, frequency drift, and noise are all eliminated before power reaches any equipment.
+      </div></div>
+    </div>
+    <div class="arrow-wrap"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+
+    <!-- SPLIT: electrical vs mechanical output -->
+    <div style="width:100%;max-width:480px;text-align:center;padding:4px 0">
+      <span style="font-size:11px;font-weight:500;color:#888;letter-spacing:.06em;text-transform:uppercase">Output splits by skid type</span>
+    </div>
+
+    <div class="split-wrap">
+      <div class="split-branch">
+        <div class="split-card" onclick="toggle('fs1')" id="sc-fs1">
+          <div class="split-label" style="color:#3b6d11">⚡ Electrical skids</div>
+          <div class="split-sub">PI &amp; PH → RPPs → IT racks</div>
+          <div class="split-tag" style="background:#eaf3de;color:#3b6d11">156 RPPs</div>
+        </div>
+        <div class="split-detail" id="fs1"><div class="detail-inner" style="border:0.5px solid #e0ddd6;border-top:none;font-size:12px">
+          Conditioned power flows from the UPS output through a switchboard to <strong>Remote Power Panels (RPPs)</strong> on the data hall floor. Each RPP has a <strong>400 A main breaker</strong> and distributes power to IT racks via branch circuits. There are <strong>156 RPPs</strong> site-wide, all fed by the 16 electrical skids (4 PI + 12 PH). PI skids feed critical network server racks. PH skids feed high-density AI racks.
+        </div></div>
+      </div>
+      <div class="split-branch">
+        <div class="split-card" onclick="toggle('fs2')" id="sc-fs2">
+          <div class="split-label" style="color:#0f6e56">🌀 Mechanical skids</div>
+          <div class="split-sub">MI &amp; MH → cooling plant</div>
+          <div class="split-tag" style="background:#e1f5ee;color:#0f6e56">Direct feed</div>
+        </div>
+        <div class="split-detail" id="fs2"><div class="detail-inner" style="border:0.5px solid #e0ddd6;border-top:none;font-size:12px">
+          Mechanical skids feed cooling equipment directly — there are <strong>no RPPs</strong> in the mechanical path. Each mechanical skid powers its own <strong>chillers</strong> and <strong>chilled water pumps</strong> (both on the roof) and <strong>fan walls</strong> (data hall floor). MI skids serve critical cooling; MH skids serve non-critical cooling. The cooling infrastructure guide covers these systems in detail.
+        </div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="divider"></div>
+<div class="section" style="padding-bottom:0">
+  <div class="tip-box">
+    <strong>Trace it from memory:</strong> Electrical path — "25 kV → transformer (415 V) → switchboard → 2× UPS (rectifier → DC bus → inverter) → switchboard → RPP → IT rack." Mechanical path — "25 kV → transformer (415 V) → switchboard → 3× UPS → cooling plant (chillers, pumps, fan walls)." House path — "25 kV → transformer (480 V) → west-side electrical room → admin UPS → office / lighting / BMS." Then add the bypasses — ERMS around the UPS (manual), static bypass inside it (automatic).
+  </div>
+</div>
+</div>
+
+<!-- ===================== TAB: E-SKID TYPES ===================== -->
+<div class="tab-panel" id="tab-skids">
+<div class="section">
+  <div class="section-title">E-Skid types — what each code means</div>
+  <div class="info-box" style="margin-bottom:1rem">
+    <strong>Naming convention:</strong> The first letter is the function — <strong>P</strong> = Power (electrical, feeds IT racks) · <strong>M</strong> = Mechanical (feeds cooling plant). The second letter is the criticality — <strong>I</strong> = Critical (generator backed) · <strong>H</strong> = Non-critical (no generator backup).
+  </div>
+
+  <div class="eskid-grid">
+    <div class="eskid-card">
+      <div class="eskid-header pi-h">
+        <div class="eskid-code pi-code">PI</div>
+        <div class="eskid-meta"><div class="eskid-name">Critical electrical</div><div class="eskid-type">Generator backed · 2 × 1,250 kVA UPS</div></div>
+      </div>
+      <div class="eskid-body">
+        Powers <strong>critical load racks</strong> (core scientific network servers) via RPPs. During a utility outage, dedicated generators keep these skids running — the critical IT load never drops.
+        <div class="count-row"><span class="chip pi-chip">4 skids</span><span class="chip pi-chip">4 generators</span></div>
+      </div>
+    </div>
+
+    <div class="eskid-card">
+      <div class="eskid-header ph-h">
+        <div class="eskid-code ph-code">PH</div>
+        <div class="eskid-meta"><div class="eskid-name">Non-critical electrical</div><div class="eskid-type">No gen backup · 2 × 1,250 kVA UPS</div></div>
+      </div>
+      <div class="eskid-body">
+        Powers <strong>non-critical racks</strong> (high-density / AI compute) via RPPs. No generator backup — during a utility outage, the UPS batteries provide bridge power only until they are exhausted.
+        <div class="count-row"><span class="chip ph-chip">12 skids</span><span class="chip ph-chip">No gen backup</span></div>
+      </div>
+    </div>
+
+    <div class="eskid-card">
+      <div class="eskid-header mi-h">
+        <div class="eskid-code mi-code">MI</div>
+        <div class="eskid-meta"><div class="eskid-name">Critical mechanical</div><div class="eskid-type">Generator backed · 3 × 250 kVA UPS</div></div>
+      </div>
+      <div class="eskid-body">
+        Powers <strong>critical cooling infrastructure</strong>: rooftop chillers, chilled water pumps, and fan walls. Generator backed — cooling continues during a utility outage, keeping critical IT racks within thermal limits.
+        <div class="count-row"><span class="chip mi-chip">3 skids</span><span class="chip mi-chip">3 generators</span></div>
+      </div>
+    </div>
+
+    <div class="eskid-card">
+      <div class="eskid-header mh-h">
+        <div class="eskid-code mh-code">MH</div>
+        <div class="eskid-meta"><div class="eskid-name">Non-critical mechanical</div><div class="eskid-type">No gen backup · 3 × 250 kVA UPS</div></div>
+      </div>
+      <div class="eskid-body">
+        Powers <strong>non-critical cooling infrastructure</strong>: same equipment types as MI, but no generator backup. During a utility outage, non-critical cooling drops once UPS batteries are exhausted.
+        <div class="count-row"><span class="chip mh-chip">5 skids</span><span class="chip mh-chip">No gen backup</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:1rem">
+    <div class="section-title">Summary table</div>
+    <table class="ref-table">
+      <thead><tr><th>Code</th><th>Type</th><th>Count</th><th>UPS per skid</th><th>Gen?</th><th>Feeds</th></tr></thead>
+      <tbody>
+        <tr><td><strong>PI</strong></td><td>Critical electrical</td><td>4</td><td>2 × 1,250 kVA</td><td><span class="yes">Yes</span></td><td>RPPs → critical (network) racks</td></tr>
+        <tr><td><strong>PH</strong></td><td>Non-critical electrical</td><td>12</td><td>2 × 1,250 kVA</td><td><span class="no">No</span></td><td>RPPs → non-critical (AI/HD) racks</td></tr>
+        <tr><td><strong>MI</strong></td><td>Critical mechanical</td><td>3</td><td>3 × 250 kVA</td><td><span class="yes">Yes</span></td><td>Chillers, CHWPs, fan walls</td></tr>
+        <tr><td><strong>MH</strong></td><td>Non-critical mechanical</td><td>5</td><td>3 × 250 kVA</td><td><span class="no">No</span></td><td>Chillers, CHWPs, fan walls</td></tr>
+        <tr><td colspan="2"><strong>Total</strong></td><td><strong>24</strong></td><td colspan="3">7 skids on generator · 17 not · house load also gen-backed (not a skid)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="margin-top:1rem">
+    <div class="section-title">House / admin load (AD)</div>
+    <div style="padding:12px 14px;border-radius:10px;border:0.5px solid #e0ddd6;background:#fff;font-size:13px;color:#5f5e5a;line-height:1.6">
+      <strong style="color:#1a1a1a">The house load sits outside the E-Skid system.</strong> The 25th transformer steps 25 kV down to <strong>480 V</strong> (not 415 V like the skid transformers) and feeds power directly into a <strong>dedicated electrical room on the west side</strong> of the main building — not into an external skid. Inside that room, a single UPS (the 57th on site) conditions power for office lighting, HVAC, access control, fire systems, and BMS. A dedicated generator (<strong>GEN-AD</strong>), located on the south side near the loading dock, provides backup for these essential building services during a utility outage.
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ===================== TAB: GENERATORS ===================== -->
+<div class="tab-panel" id="tab-generators">
+<div class="section">
+  <div class="section-title">Diesel generator allocation — 8 total</div>
+  <div class="gen-grid">
+    <div class="gen-card">
+      <div class="gen-header">
+        <div class="gen-icon" style="background:#faece7;color:#993c1d">⛽</div>
+        <div><div class="gen-label">PI generators</div><div style="font-size:11px;color:#888">Critical electrical</div></div>
+      </div>
+      <div class="gen-count" style="color:#993c1d">4</div>
+      <div class="gen-unit">generators · north side</div>
+      <div class="gen-serves">One per PI E-Skid. Keeps power flowing to critical network/customer server racks during a utility outage. Racks stay on UPS battery while generators start, then generators take over the load.</div>
+    </div>
+    <div class="gen-card">
+      <div class="gen-header">
+        <div class="gen-icon" style="background:#e6f1fb;color:#185fa5">⛽</div>
+        <div><div class="gen-label">MI generators</div><div style="font-size:11px;color:#888">Critical mechanical</div></div>
+      </div>
+      <div class="gen-count" style="color:#185fa5">3</div>
+      <div class="gen-unit">generators · north side</div>
+      <div class="gen-serves">One per MI E-Skid. Keeps critical cooling (rooftop chillers, CHWPs, fan walls) running during a utility outage so critical IT racks stay within thermal limits.</div>
+    </div>
+    <div class="gen-card">
+      <div class="gen-header">
+        <div class="gen-icon" style="background:#eaf3de;color:#3b6d11">⛽</div>
+        <div><div class="gen-label">GEN-AD</div><div style="font-size:11px;color:#888">House / admin</div></div>
+      </div>
+      <div class="gen-count" style="color:#3b6d11">1</div>
+      <div class="gen-unit">generator · south side</div>
+      <div class="gen-serves">Backs up essential building systems: lighting, HVAC, access control, fire systems. Feeds the house electrical room on the west side — <strong>not an E-Skid</strong>. The only generator not on the north side — located on the south side near the loading dock.</div>
+    </div>
+  </div>
+
+  <div style="margin-top:1rem" class="info-box">
+    <strong>What happens during a utility outage?</strong> When the utility feed fails, the UPS batteries on every skid take over instantly — there is no gap. On the <strong>7 generator-backed skids</strong> (4 PI + 3 MI), generators start automatically and take over the load from the batteries within seconds to minutes. <strong>GEN-AD</strong> does the same for the house load, which is served from the west-side electrical room inside the building — not from a skid. The <strong>17 non-backed skids</strong> (12 PH + 5 MH) have battery runtime only — once batteries are exhausted, those loads drop. This means non-critical AI racks and non-critical cooling go down, while critical network servers, their cooling, and building services continue running on generator power.
+  </div>
+
+  <div style="margin-top:1rem">
+    <div class="section-title">Generator location summary</div>
+    <table class="ref-table">
+      <thead><tr><th>Generator</th><th>Count</th><th>Location</th><th>Backs up</th></tr></thead>
+      <tbody>
+        <tr><td><strong>PI generators</strong></td><td>4</td><td>North side</td><td>4 PI E-Skids → critical IT racks</td></tr>
+        <tr><td><strong>MI generators</strong></td><td>3</td><td>North side</td><td>3 MI E-Skids → critical cooling plant</td></tr>
+        <tr><td><strong>GEN-AD</strong></td><td>1</td><td>South side (loading dock)</td><td>House electrical room (west side) → building services</td></tr>
+        <tr><td colspan="2"><strong>Total: 8</strong></td><td colspan="2">7 back skids (north) · 1 backs house load (south)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<!-- ===================== TAB: HOW IT WORKS ===================== -->
+<div class="tab-panel" id="tab-operation">
+<div class="section">
+  <div class="section-title">How each component works — tap to expand</div>
+
+  <div class="op-card" onclick="toggleOp('op1')">
+    <div class="op-header">
+      <div class="op-icon" style="background:#eeedfe;color:#534ab7">🔌</div>
+      <div class="op-text"><div class="op-title">Transformer</div><div class="op-sub">Electromagnetic voltage conversion · 25 kV → 415 V / 480 V</div></div>
+      <div class="op-chevron" id="chev-op1">▼</div>
+    </div>
+    <div class="op-body" id="op1">
+      <p>A transformer has no moving parts. It works through <strong>magnetism</strong> — there is no direct electrical connection between the input and output sides.</p>
+      <p>Inside are two coils of wire wrapped around an iron core. Electricity flowing through the first coil (primary) creates a magnetic field in the core. That magnetic field then generates a voltage in the second coil (secondary) — this is <strong>Faraday's Law</strong>: a changing magnetic field induces a voltage in a nearby conductor.</p>
+      <p>The output voltage depends on the ratio of turns (loops) between the two coils. More turns on the primary than the secondary means the voltage comes out lower. The 24 skid transformers reduce 25 kV to <strong>415 V</strong>. The house transformer reduces 25 kV to <strong>480 V</strong>. Each transformer's <strong>MVA rating</strong> describes its apparent power capacity — how much load it can support — which is separate from the voltage level.</p>
+    </div>
+  </div>
+
+  <div class="op-card" onclick="toggleOp('op2')">
+    <div class="op-header">
+      <div class="op-icon" style="background:#e6f1fb;color:#185fa5">⬛</div>
+      <div class="op-text"><div class="op-title">Switchboard (SWBD)</div><div class="op-sub">Power distribution and protection</div></div>
+      <div class="op-chevron" id="chev-op2">▼</div>
+    </div>
+    <div class="op-body" id="op2">
+      <p>A switchboard takes one large incoming power feed and splits it into multiple smaller circuits, each with its own breaker. It's essentially a <strong>controlled junction box</strong>.</p>
+      <p>The main incoming power connects to <strong>busbars</strong> — thick copper bars that carry the full current. Individual circuit breakers tap off those bars and feed downstream equipment. If a fault occurs on one circuit, its breaker trips and isolates just that circuit — everything else keeps running.</p>
+      <p>In the E-Skid, the switchboard is also where the <strong>ERMS maintenance bypass</strong> connects. This gives operators a point to route power around the UPS when it needs to be taken offline for maintenance.</p>
+    </div>
+  </div>
+
+  <div class="op-card" onclick="toggleOp('op3')">
+    <div class="op-header">
+      <div class="op-icon" style="background:#faeeda;color:#854f0b">🔋</div>
+      <div class="op-text"><div class="op-title">UPS — double-conversion overview</div><div class="op-sub">AC → DC → AC power conditioning</div></div>
+      <div class="op-chevron" id="chev-op3">▼</div>
+    </div>
+    <div class="op-body" id="op3">
+      <p>Every UPS on this site is a <strong>double-conversion</strong> system. Incoming AC is converted to DC (by the rectifier), and then back to AC (by the inverter) before it reaches any equipment. This two-step process is where the name comes from.</p>
+      <p>Because the output is a freshly generated waveform — not the utility supply passed straight through — any noise, sags, surges, or frequency deviations in the incoming power are eliminated. Equipment downstream always receives clean, stable power.</p>
+      <p>The battery bank sits on the internal <strong>DC bus</strong> between the two conversions. During normal operation the batteries are fully charged and idle. If the incoming AC supply fails, the batteries immediately take over supplying the DC bus — the inverter keeps running without any gap, and downstream equipment notices nothing.</p>
+    </div>
+  </div>
+
+  <div class="op-card" onclick="toggleOp('op4')">
+    <div class="op-header">
+      <div class="op-icon" style="background:#faeeda;color:#854f0b">〰️</div>
+      <div class="op-text"><div class="op-title">Rectifier</div><div class="op-sub">AC → DC conversion</div></div>
+      <div class="op-chevron" id="chev-op4">▼</div>
+    </div>
+    <div class="op-body" id="op4">
+      <p>AC power alternates direction rapidly — it flows forward, reverses, flows forward again, many times per second. DC power flows in one direction only. The rectifier converts AC into DC.</p>
+      <p>It does this using <strong>diodes</strong> — components that only allow current to flow one way. By arranging diodes so both the forward and reverse parts of the AC wave are redirected the same way, the output always flows in one direction. The result is DC power that feeds the internal DC bus and keeps the batteries charged.</p>
+    </div>
+  </div>
+
+  <div class="op-card" onclick="toggleOp('op5')">
+    <div class="op-header">
+      <div class="op-icon" style="background:#faece7;color:#993c1d">📶</div>
+      <div class="op-text"><div class="op-title">Inverter</div><div class="op-sub">DC → AC conversion</div></div>
+      <div class="op-chevron" id="chev-op5">▼</div>
+    </div>
+    <div class="op-body" id="op5">
+      <p>The inverter does the opposite of the rectifier — it takes DC from the internal bus and produces AC power for the load.</p>
+      <p>It uses electronic switches that turn on and off very rapidly, chopping the DC into a pattern that, when smoothed out, produces a clean AC waveform at the correct voltage and frequency. This is called <strong>pulse-width modulation (PWM)</strong>.</p>
+      <p>Because the inverter builds its own output from scratch, the power reaching the load has no connection to whatever is happening on the utility supply. Voltage dips, spikes, or noise upstream have no effect on what the equipment receives.</p>
+    </div>
+  </div>
+
+  <div class="op-card" onclick="toggleOp('op6')">
+    <div class="op-header">
+      <div class="op-icon" style="background:#faeeda;color:#854f0b">🔄</div>
+      <div class="op-text"><div class="op-title">Static bypass</div><div class="op-sub">Automatic fault transfer — internal to UPS</div></div>
+      <div class="op-chevron" id="chev-op6">▼</div>
+    </div>
+    <div class="op-body" id="op6">
+      <p>The static bypass is an automatic escape route built into every UPS. If the UPS develops a fault and can no longer supply the load safely, the static bypass connects the load directly to the incoming utility supply instead — keeping equipment powered while the UPS problem is dealt with.</p>
+      <p>It uses a solid-state electronic switch with no moving parts, which means it can operate in <strong>under one millisecond</strong> — fast enough that connected equipment doesn't register any interruption.</p>
+      <p>This happens <strong>automatically</strong> — no operator action required. It is completely separate from the ERMS maintenance bypass, which is a manual, planned procedure. The static bypass is a fault response; the ERMS is a maintenance tool.</p>
+    </div>
+  </div>
+
+  <div class="op-card" onclick="toggleOp('op7')">
+    <div class="op-header">
+      <div class="op-icon" style="background:#f1efe8;color:#5f5e5a">⚙️</div>
+      <div class="op-text"><div class="op-title">ERMS / Maintenance bypass</div><div class="op-sub">Manual bypass — operator initiated</div></div>
+      <div class="op-chevron" id="chev-op7">▼</div>
+    </div>
+    <div class="op-body" id="op7">
+      <p>The ERMS is a manual bypass switch that routes power around the UPS so the UPS can be safely taken offline — without cutting power to the equipment it normally supplies.</p>
+      <p>Before the UPS is disconnected, the bypass feed is confirmed live and matched to the UPS output. The load is then transferred across with no gap in supply. This is a deliberate, operator-controlled action — not automatic.</p>
+      <p>While on ERMS bypass, the load is running on raw utility power with <strong>no conditioning and no battery backup</strong>. If the utility supply has an issue during this time, the load will be affected. ERMS operation is always a planned activity, carried out carefully and for the shortest time necessary.</p>
+    </div>
+  </div>
+
+  <div class="op-card" onclick="toggleOp('op8')">
+    <div class="op-header">
+      <div class="op-icon" style="background:#eaf3de;color:#3b6d11">⚡</div>
+      <div class="op-text"><div class="op-title">Remote Power Panel (RPP)</div><div class="op-sub">Final distribution to rack loads — electrical skids only</div></div>
+      <div class="op-chevron" id="chev-op8">▼</div>
+    </div>
+    <div class="op-body" id="op8">
+      <p>The RPP is the last distribution point before power reaches individual server racks. It receives a single feed from the upstream switchboard and splits it into multiple smaller circuits — one per rack or group of racks.</p>
+      <p>Each circuit has its own <strong>breaker</strong>. If there is a fault on one rack feed, only that breaker trips — everything else in the panel stays on. The <strong>400 A main breaker</strong> at the top of the panel protects the whole panel and the cable feeding it.</p>
+      <p>RPPs also give technicians a <strong>local isolation point</strong> — power to a specific rack can be locked off at the RPP without having to go back to the skid. There are <strong>156 RPPs</strong> on this site, all on electrical skids. Mechanical skids feed cooling plant directly and have no RPPs.</p>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ===================== TAB: SITE LAYOUT ===================== -->
+<div class="tab-panel" id="tab-layout">
+<div class="section">
+  <div class="section-title">Physical layout — where power infrastructure is located</div>
+  <div class="loc-grid">
+
+    <div class="loc-card">
+      <div class="loc-header" style="background:#faece7">
+        <span style="color:#712b13">⚡ North side — E-Skids &amp; generators</span>
+      </div>
+      <div class="loc-body">
+        All <strong>24 E-Skids</strong> and <strong>7 of the 8 generators</strong> (3 MI + 4 PI) are located on the north side. Each skid has its own dedicated transformer stepping 25 kV down to 415 V. This consolidates the majority of the site's power conditioning and backup generation in one area.
+      </div>
+    </div>
+
+    <div class="loc-card">
+      <div class="loc-header" style="background:#faeeda">
+        <span style="color:#633806">🔌 West side — house electrical room</span>
+      </div>
+      <div class="loc-body">
+        The <strong>25th transformer</strong> steps 25 kV down to <strong>480 V</strong> and feeds a dedicated electrical room on the west side of the main building. Inside: the admin UPS, switchgear, and all electrical infrastructure for the house load (office, lighting, HVAC, access control, fire systems, BMS). This is the only power infrastructure housed inside the building rather than in an external skid.
+      </div>
+    </div>
+
+    <div class="loc-card">
+      <div class="loc-header" style="background:#eaf3de">
+        <span style="color:#27500a">📶 Data hall floor — RPPs</span>
+      </div>
+      <div class="loc-body">
+        All <strong>156 RPPs</strong> are distributed throughout the data hall, fed by the 16 electrical E-Skids (4 PI + 12 PH). Each RPP is the final distribution point before power reaches individual IT racks. Technicians can isolate individual rack feeds at the RPP without returning to the skid.
+      </div>
+    </div>
+
+    <div class="loc-card">
+      <div class="loc-header" style="background:#eaf3de">
+        <span style="color:#27500a">⛽ South side — GEN-AD &amp; tanks</span>
+      </div>
+      <div class="loc-body">
+        <strong>GEN-AD</strong> — the single house load generator — is located on the south side near the loading dock. It backs up the west-side electrical room inside the building and is the only generator not on the north side. Also on the south side: the <strong>glycol fill tank</strong> (next to GEN-AD) and <strong>2 chilled water tanks</strong> (to the east of GEN-AD). These are covered in more detail in the cooling infrastructure guide.
+      </div>
+    </div>
+
+    <div class="loc-card">
+      <div class="loc-header" style="background:#eeedfe">
+        <span style="color:#3c3489">🔗 East &amp; west sides — MMRs</span>
+      </div>
+      <div class="loc-body">
+        <strong>2 Meet Me Rooms (MMRs)</strong> — one east, one west. MMRs are where external data carriers physically connect to the site. All data entering and leaving the data center passes through an MMR. While not power infrastructure, they are critical network points to be aware of.
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- ===================== TAB: REFERENCE ===================== -->
+<div class="tab-panel" id="tab-ref">
+<div class="section">
+  <div class="section-title">Quick reference</div>
+  <table class="ref-table">
+    <thead><tr><th>#</th><th>Component</th><th>Rating / count</th><th>Function</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Power poles</td><td><span class="pill" style="background:#eeedfe;color:#534ab7">25 kV × 25</span></td><td>25 utility feeds — 24 to skids, 1 to house</td></tr>
+      <tr><td>2</td><td>Transformers — skids</td><td><span class="pill" style="background:#e1f5ee;color:#0f6e56">25 kV → 415 V × 24</span></td><td>One per E-Skid</td></tr>
+      <tr><td>3</td><td>Transformer — house</td><td><span class="pill" style="background:#eeedfe;color:#534ab7">25 kV → 480 V × 1</span></td><td>Feeds west-side electrical room (not a skid)</td></tr>
+      <tr><td>4</td><td>E-Skids</td><td><span class="pill" style="background:#e6f1fb;color:#185fa5">24 total</span></td><td>16 electrical (4 PI + 12 PH) · 8 mechanical (3 MI + 5 MH)</td></tr>
+      <tr><td>5</td><td>Switchboard (SWBD)</td><td><span class="pill" style="background:#e6f1fb;color:#185fa5">415 V</span></td><td>Distribution + ERMS maintenance bypass tie point</td></tr>
+      <tr><td>6</td><td>UPS — electrical</td><td><span class="pill" style="background:#faeeda;color:#854f0b">2 × 1,250 kVA</span></td><td>2,500 kVA per skid · 32 units across 16 skids</td></tr>
+      <tr><td>7</td><td>UPS — mechanical</td><td><span class="pill" style="background:#faeeda;color:#854f0b">3 × 250 kVA</span></td><td>750 kVA per skid · 24 units across 8 skids</td></tr>
+      <tr><td>8</td><td>UPS — house</td><td><span class="pill" style="background:#eeedfe;color:#534ab7">1 unit · 480 V</span></td><td>57th UPS on site · west-side electrical room</td></tr>
+      <tr><td>9</td><td>Rectifier + DC bus</td><td><span class="pill" style="background:#faeeda;color:#854f0b">AC → DC</span></td><td>Battery bank floats on DC bus; seamless takeover on AC loss</td></tr>
+      <tr><td>10</td><td>Static bypass</td><td><span class="pill" style="background:#f1efe8;color:#5f5e5a">&lt; 1 ms</span></td><td>Auto-transfers to utility if inverter fails — no operator action</td></tr>
+      <tr><td>11</td><td>Inverter</td><td><span class="pill" style="background:#faece7;color:#993c1d">DC → AC</span></td><td>Synthesises clean output; load isolated from upstream</td></tr>
+      <tr><td>12</td><td>RPPs</td><td><span class="pill" style="background:#eaf3de;color:#3b6d11">156 × 400 A</span></td><td>Electrical skids only — branch circuit distribution to IT racks</td></tr>
+      <tr><td>13</td><td>Generators</td><td><span class="pill" style="background:#faece7;color:#993c1d">8 total</span></td><td>4 PI + 3 MI (north) · 1 AD (south) — 7 back skids, 1 backs house</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="divider"></div>
+
+<div class="section">
+  <div class="section-title">Key terms</div>
+  <div class="glossary">
+    <div class="gcard"><div class="term">E-Skid</div><div class="def">Modular, skid-mounted electrical unit housing the switchboard, UPS units, and output distribution in one assembly. 24 on site, each with its own dedicated transformer (25 kV → 415 V).</div></div>
+    <div class="gcard"><div class="term">SWBD</div><div class="def">Switchboard — distributes transformer output to multiple UPS inputs via busbars and individual breakers. Also the ERMS maintenance bypass tie point.</div></div>
+    <div class="gcard"><div class="term">UPS</div><div class="def">Uninterruptible Power Supply — double-conversion system (rectifier → DC bus → inverter) that protects loads from outages, sags, surges, and frequency drift. 57 total on site.</div></div>
+    <div class="gcard"><div class="term">Double-conversion</div><div class="def">UPS topology where incoming AC is converted to DC and then back to AC. Output is a freshly generated waveform, fully isolated from upstream disturbances.</div></div>
+    <div class="gcard"><div class="term">DC bus</div><div class="def">Internal DC link connecting rectifier, battery bank, and inverter inside each UPS. Batteries float here and take over instantly on AC failure.</div></div>
+    <div class="gcard"><div class="term">Rectifier</div><div class="def">Converts AC to DC using diodes. Feeds the DC bus and keeps batteries charged during normal operation.</div></div>
+    <div class="gcard"><div class="term">Inverter</div><div class="def">Converts DC to AC using pulse-width modulation. Synthesises clean, regulated output from the DC bus. Load is fully isolated from upstream.</div></div>
+    <div class="gcard"><div class="term">Static bypass</div><div class="def">Automatic solid-state switch inside the UPS. Transfers load to utility in under 1 ms if the inverter fails. No operator action required.</div></div>
+    <div class="gcard"><div class="term">ERMS</div><div class="def">Manual maintenance bypass path around the UPS. Operator-initiated during planned maintenance. Load runs on raw utility power — no conditioning, no battery backup.</div></div>
+    <div class="gcard"><div class="term">RPP</div><div class="def">Remote Power Panel — 400 A main breaker panel distributing power to IT racks via branch circuits. 156 on site, electrical skids only. Provides local isolation points for technicians.</div></div>
+    <div class="gcard"><div class="term">PI / PH / MI / MH</div><div class="def">E-Skid codes. P = power (electrical), M = mechanical. I = critical (generator backed), H = non-critical (no backup). PI and MI are the protected systems.</div></div>
+    <div class="gcard"><div class="term">House load (AD)</div><div class="def">Admin/building load: office, lighting, HVAC, access control, fire, BMS. Fed by the 25th transformer (25 kV → 480 V) into a dedicated electrical room on the west side — not a skid. Backed by GEN-AD on the south side.</div></div>
+    <div class="gcard"><div class="term">MVA rating</div><div class="def">Apparent power capacity of a transformer — how much load it can support. Separate from the voltage level (which is the step-down ratio).</div></div>
+    <div class="gcard"><div class="term">Busbar</div><div class="def">Thick copper bar inside a switchboard that carries the full incoming current. Individual circuit breakers tap off the busbar to feed downstream equipment.</div></div>
+    <div class="gcard"><div class="term">MMR</div><div class="def">Meet Me Room — where external data carriers physically connect to the site. 2 on site (east and west). All data in/out passes through an MMR.</div></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+<div class="section" style="padding-bottom:0">
+  <div class="tip-box">
+    <strong>Study tip — three power paths:</strong> (1) Electrical: 25 kV → transformer (415 V) → SWBD → 2× UPS → RPP → IT rack. (2) Mechanical: 25 kV → transformer (415 V) → SWBD → 3× UPS → chillers / pumps / fan walls. (3) House: 25 kV → transformer (480 V) → west-side electrical room → admin UPS → office / lighting / BMS. Know which skid codes are on each path — PI/PH for electrical, MI/MH for mechanical — and which are generator backed (PI, MI, AD). Remember: 7 skids are on generator, plus the house load (which is not a skid).
+  </div>
+</div>
+</div>
+
+<script>
+let openFlow=null;
+function toggle(id){
+  const p=document.getElementById(id);
+  const sc=document.getElementById('sc-'+id);
+  const c=sc||p.previousElementSibling;
+  if(openFlow===id){
+    p.classList.remove('open');if(c)c.classList.remove('active');openFlow=null;
+  } else {
+    if(openFlow){
+      const op=document.getElementById(openFlow);
+      op.classList.remove('open');
+      const osc=document.getElementById('sc-'+openFlow);
+      const oc=osc||op.previousElementSibling;
+      if(oc)oc.classList.remove('active');
+    }
+    p.classList.add('open');if(c)c.classList.add('active');openFlow=id;
+  }
+}
+let openOp=null;
+function toggleOp(id){
+  const body=document.getElementById(id);
+  const chev=document.getElementById('chev-'+id);
+  if(openOp===id){body.classList.remove('open');chev.classList.remove('open');openOp=null;}
+  else{
+    if(openOp){document.getElementById(openOp).classList.remove('open');document.getElementById('chev-'+openOp).classList.remove('open');}
+    body.classList.add('open');chev.classList.add('open');openOp=id;
+  }
+}
+function switchTab(name){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
